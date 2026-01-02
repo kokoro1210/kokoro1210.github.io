@@ -1,90 +1,290 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Progate</title>
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="stylesheet.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>和らぎ体質診断</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --main: #b35c5c; --bg: #fdf6f0; --accent: #f48f8f; --white: #ffffff; }
+    body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg); color: #444; padding: 20px; margin-top: 40px; }
+    #progressBarContainer { width: 100%; background: #eee; height: 8px; position: fixed; top: 0; left: 0; z-index: 1000; }
+    #progressBar { width: 0%; height: 100%; background: var(--accent); transition: 0.5s; }
+    h1 { color: var(--main); text-align: center; font-size: 1.5rem; }
+    .card { background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
+    .question-text { font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .options input { display: none; }
+    .options label { background: #fffafa; border: 1px solid #f5a3a3; padding: 12px; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
+    .options label:hover { background: var(--accent); color: white; }
+    .type-badge { display: inline-block; background: var(--main); color: white; padding: 6px 16px; border-radius: 20px; font-size: 1.1rem; margin: 5px; cursor: pointer; }
+    .type-desc-box { background: #fff3f3; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 4px solid var(--accent); font-size: 0.9rem; }
+    button { background: #f7c9c9; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; color: var(--main); font-weight: bold; margin: 5px; }
+    button:hover { background: var(--accent); color: white; }
+    figure { display: inline-block; text-align: center; margin: 10px; width: 160px; vertical-align: top; }
+    img { width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    figcaption { font-size: 12px; margin-top: 8px; font-weight: bold; }
+    figcaption a { color: var(--main); text-decoration: none; }
+    #modal, #overlay { display: none; position: fixed; z-index: 2000; }
+    #overlay { top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+    #modal { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; background: white; padding: 25px; border-radius: 20px; text-align: center; }
+  </style>
 </head>
 <body>
-  <header>
-    <div class="container">
-      <div class="header-left">
-        <img class="logo" src="https://prog-8.com/images/html/advanced/main_logo.png">
-      </div>
-      <span class="fa fa-bars menu-icon"></span>
-      <div class="header-right">
-        <a href="#">レッスン</a>
-        <a href="#">新規登録</a>
-        <a href="#" class="login">ログイン</a>
-      </div>
-    </div>
-  </header>
-  <div class="top-wrapper">
-    <div class="container">
-      <h1>LEARN TO CODE.<br>LEARN TO BE CREATIVE.</h1>
-      <p>Progateはオンラインプログラミング学習サービスです。<br>初心者にもやさしいスライドとレッスンで、ウェブサービスを作りながらプログラミングを学んでいきましょう。</p>
-      <div class="btn-wrapper">
-        <a href="#" class="btn signup">新規登録はこちら</a>
-        <p>or</p>
-        <a href="#" class="btn facebook"><span class="fa fa-facebook"></span>Facebookで登録</a>
-        <a href="#" class="btn twitter"><span class="fa fa-twitter"></span>Twitterで登録</a>
-      </div>
-    </div>
+  <div id="progressBarContainer"><div id="progressBar"></div></div>
+  <h1>和らぎ体質診断</h1>
+  <div id="diagnosis"></div>
+  <div id="result" class="card" style="display:none">
+    <h2 style="font-size: 0.9rem; color: #888;">あなたの診断結果</h2>
+    <div id="badgeArea"></div>
+    <div id="summaryDesc" class="type-desc-box"></div>
+    <p style="font-size: 0.7rem; color: #aaa;">※バッジをタップで詳細解説</p>
+    <button onclick="toggleHistory()">履歴表示</button>
+    <button onclick="startDiagnosis()">最初から</button>
+    <div id="historyList" style="display:none; margin-top:10px; font-size:0.8rem;"></div>
+    <h3 style="margin-top:30px; color:var(--main); border-bottom:1px solid #eee;">おすすめの薬膳</h3>
+    <div id="yakuzennImages"></div>
+    <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのツボ</h3>
+    <div id="tsuboImages"></div>
+    <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのヨガ</h3>
+    <div id="yogaPlaceholder"></div>
   </div>
-  <div class="lesson-wrapper">
-    <div class="container">
-      <div class="heading">
-        <h2>Learn Where to Get Started!</h2>
-      </div>
-      <div class="lessons">
-        <div class="lesson">
-          <div class="lesson-icon">
-            <img src="https://prog-8.com/images/html/advanced/html.png">
-            <p>HTML & CSS</p>
-          </div>
-          <p class="text-contents">ウェブページの作成に使用される言語です。HTMLとCSSを組み合わせることで、静的なページを作り上げることができます。</p>
-        </div>
-        <div class="lesson">
-          <div class="lesson-icon">
-            <img src="https://prog-8.com/images/html/advanced/jQuery.png">
-            <p>jQuery</p>
-          </div>
-          <p class="text-contents">素敵な動きを手軽に実装できるJavaScriptライブラリです。 アニメーション効果をつけたり、Ajax（エイジャックス）を使って外部ファイルを読み込んだりと色々なことができます。</p>
-        </div>
-        <div class="lesson">
-          <div class="lesson-icon">
-            <img src="https://prog-8.com/images/html/advanced/ruby.png">
-            <p>Ruby</p>
-          </div>
-          <p class="text-contents">オープンソースの動的なプログラミング言語で、 シンプルさと高い生産性を備えています。大きなWebアプリケーションから小さな日用ツールまで、さまざまなソフトウェアを作ることができます。</p>
-        </div>
-        <div class="lesson">
-          <div class="lesson-icon">
-            <img src="https://prog-8.com/images/html/advanced/php.png">
-            <p>PHP</p>
-          </div>
-          <p class="text-contents">HTMLだけではページの内容を変えることはできません。PHPはHTMLにプログラムを埋め込み、それを可能にします。</p>
-        </div>
-      </div>
-      <div class="clear"></div>
-    </div>
-  </div>
-  <div class="message-wrapper">
-    <div class="container">
-      <div class="heading">
-        <h2>さぁ、あなたもProgateでプログラミングを学んでみませんか?</h2>
-        <h3>Let's learn to code, learn to be creative!</h3>
-      </div>
-      <span class="btn message">さっそく開発する</span>
-    </div>
-  </div>
-  <footer>
-    <div class="container">
-      <img src="https://prog-8.com/images/html/advanced/footer_logo.png">
-      <p>Learn to Code, Learn to be Creative.</p>
-    </div>
-  </footer>
+  <div id="overlay" onclick="closeModal()"></div>
+  <div id="modal"><h3 id="mTitle"></h3><p id="mContent" style="text-align:left; font-size:0.9rem;"></p><button onclick="closeModal()">閉じる</button></div>
+
+  <script>
+    // 1. 質問データ (24問)
+    const questions = [
+      { text: "体力がなく疲れやすいですか？", type: "kyo" },
+      { text: "体力があり活力が強いと感じますか？", type: "jitsu", reverse: true },
+      { text: "風邪をひきやすいですか？", type: "kyo" },
+      { text: "手足が冷えやすいですか？", type: "kan" },
+      { text: "暑がりでのぼせやすいですか？", type: "netsu", reverse: true },
+      { text: "夏でも冷たい飲み物は苦手ですか？", type: "kan" },
+      { text: "少し動くと疲れて息切れしますか？", type: "kikyo" },
+      { text: "風邪を引きやすいですか？", type: "kikyo" },
+      { text: "声が小さく弱々しいですか？", type: "kikyo" },
+      { text: "ため息がよく出ますか？", type: "kitai" },
+      { text: "胸やお腹が張る感じがありますか？", type: "kitai" },
+      { text: "気分が落ち込みやすいですか？", type: "kitai" },
+      { text: "めまい・ふらつきが多いですか？", type: "kigyaku" },
+      { text: "のぼせやすいですか？", type: "kigyaku" },
+      { text: "動悸を感じますか？", type: "kigyaku" },
+      { text: "顔色が青白いですか？", type: "kekkyo" },
+      { text: "爪が割れやすいですか？", type: "kekkyo" },
+      { text: "目の乾燥を感じますか？", type: "kekkyo" },
+      { text: "あざができやすいですか？", type: "oketsu" },
+      { text: "肩こり・頭痛が多いですか？", type: "oketsu" },
+      { text: "生理不順や生理痛がありますか？", type: "oketsu" },
+      { text: "むくみやすいですか？", type: "suitai" },
+      { text: "下痢や軟便が多いですか？", type: "suitai" },
+      { text: "身体に水音を感じることがありますか？", type: "suitai" }
+    ];
+
+    // 2. 体質詳細データ
+    const typeDetails = {
+      kikyo: { name: "気虚", desc: "エネルギー不足。疲れやすく免疫が低下しています。", long: "気が不足して元気がありません。消化に良いものを食べ、しっかり睡眠をとりましょう。" },
+      kitai: { name: "気滞", desc: "巡り停滞。ストレスを感じやすくイライラ気味。", long: "気の流れが滞っています。香りの良い食材や深呼吸でリラックスを心がけて。" },
+      kigyaku: { name: "気逆", desc: "逆流状態。のぼせや動悸が起きやすいです。", long: "気が上半身に突き上げています。足を温め、ゆったり過ごすことが大切です。" },
+      kekkyo: { name: "血虚", desc: "栄養不足。肌や髪が乾燥しやすく、疲れやすい。", long: "血が不足し栄養が行き渡っていません。赤い・黒い食材を食べて養いましょう。" },
+      oketsu: { name: "瘀血", desc: "血行不良。血がドロドロで肩こりやシミの原因に。", long: "血の流れが滞っています。体を動かし、温める食材で巡りを助けましょう。" },
+      suitai: { name: "水滞", desc: "水分停滞。体が重く、むくみや冷えを感じます。", long: "余分な水が溜まっています。利尿作用のある食材を選び、適度に汗を流しましょう。" },
+      kyo: { name: "虚証", desc: "体力が弱く、抵抗力が落ちている状態です。", long: "心身の機能が低下しています。無理せずエネルギーを補いましょう。" },
+      jitsu: { name: "実証", desc: "体力はありますが、邪気が溜まりやすい状態です。", long: "パワーはありますが、溜め込みやすいのでデトックスが必要です。" },
+      kan: { name: "寒証", desc: "冷えが強く、代謝が落ちている状態です。", long: "内臓が冷えています。温かい飲食物を選び、冷えから体を守りましょう。" },
+      netsu: { name: "熱証", desc: "熱がこもりやすく、のぼせやすい状態です。", long: "体内に余分な熱があります。夏野菜などで優しく熱を逃がしましょう。" }
+    };
+
+    // 3. 薬膳ファイルマッピング (全データ)
+    function getRecipeFilename(name) {
+      const map = {
+        "鶏肉と山芋の生姜煮込み": "chicken_yamaimo_ginger.html", "鶏肉と根菜の薬膳スープ": "chicken_root_herb.html", "鮭ときのこの雑炊": "salmon_mushroom_zosui.html", "鶏肉と生姜の薬膳スープ": "chicken_ginger_soup.html", "陳皮と豚肉の炒め物":"chinpi_pork.html" , "鶏肉と生姜のポカポカ炒め":"chicken_ginger_warm.html", "鮭と根菜の味噌汁":"salmon_root_miso.html", "鶏肉とキャベツの生姜スープ":"chicken_cabbage_ginger_soup.html", "大根と生姜のお粥":"daikon_ginger_okayu.html", "鶏肉と根菜のぽかぽか煮込み":"chicken_root_pokapoka.html", "レバーとほうれん草の元気チャージ炒め":"liver_spinach_stirfry.html", "黒豆と鮭のあったか雑炊":"blackbean_salmon_zosui.html", "鶏肉と黒キクラゲの生姜煮込み":"chicken_kikurage_ginger.html", "鯖と根菜の煮込み":"saba_root_nikomi.html", "ニラ玉と鶏ひき肉の生姜スープ":"nira_tama_torihiki_soup.html", "黒キクラゲと生姜のスープ":"kikurage_ginger_soup.html", "鶏肉とハト麦の生姜スープ":"chicken_hatomugi_ginger_soup.html", "あずきとかぼちゃの煮物":"azuki_kabocha_nimono.html", "鮭と大根の味噌汁":"sake_daikon_miso.html", "ハトムギと小豆のデトックス粥":"hatomugi_azuki_detox.html", "山芋と鶏むね肉のさっぱり煮":"yamaimo_chicken_refresh.html", "緑豆と豆腐の中華風スープ":"ryokutou_toufu_chinese.html", "鶏肉とキャベツ、トマトの卵とじ":"chicken_cabbage_tomato_egg.html", "豆腐と梨の冷製スープ":"tofu_pear_cold_soup.html", "鶏むね肉とセロリ、トマトのさっぱり炒め":"chicken_celery_tomato.html", "緑豆と豆腐、しその薬膳スープ":"greenbean_tofu_shiso.html", "鶏肉とキャベツ、みょうがの卵とじ":"chicken_cabbage_myoga_egg.html", "ミントとグレープフルーツのサラダ":"mint_grapefruit_salad.html", "鶏むね肉とセロリ、梨の鎮静炒め":"chicken_celery_pear.html", "緑豆と豆腐、菊花の鎮静スープ":"mungbean_tofu_chrysanthemum.html", "鶏肉とキャベツ、ミントの卵とじ":"chicken_cabbage_mint_egg.html", "菊花とトマトの冷製スープ":"chrysanthemum_tomato_cold.html", "鶏レバーとほうれん草のトマト煮込み":"chicken_liver_spinach_tomato.html", "あさりと豆腐、トマトの中華風スープ":"asari_tofu_tomato_soup.html", "牛肉とキャベツ、クコの実の卵とじ":"beef_cabbage_gouqi_egg.html", "黒ゴマとクコの実の豆乳プリン":"black_sesame_gouqi_soymilk.html", "鶏むね肉とセロリ、黒きくらげの鎮静炒め":"chicken_celery_kikurage.html", "緑豆と豆腐、菊花、紅花の鎮静スープ":"mungbean_tofu_chrysanthemum_safflower.html", "牛肉とキャベツ、みょうが、クコの実の卵とじ":"beef_cabbage_myouga_egg.html", "玉ねぎとベリーのデトックスジュース":"onion_berry_detox.html", "鶏むね肉とハト麦、冬瓜のさっぱり煮":"chicken_hatomugi_togan.html", "緑豆と豆腐、きゅうりの冷製スープ":"mungtofu_cucumber_cold.html", "鶏肉とキャベツ、ハト麦の中華風卵とじ":"chicken_cabbage_hatomugi_egg.html", "スイカとハトムギのスムージー":"watermelon_hatomugi_smoothie.html", "大根の鶏むね肉のピリ辛煮":"daikon_chicken_spicy.html", "ニラと牛肉の生姜炒め":"nira_beef_ginger.html", "薬膳参鶏湯":"samgyetang.html", "ニラと牛肉、玉ねぎのピリ辛炒め":"beef_nira_onion_spicy.html", "大根と鯖の生姜煮":"daikon_saba_ginger.html", "鶏肉と根菜の生姜スープ":"chicken_root_ginger_soup.html", "シナモン風味の豚肉とネギ炒め":"pork_negishi_cinnamon.html", "大根と鶏むね肉の菊花煮":"daikon_chicken_kikuka.html", "ニラと牛肉、みょうがの生姜炒め":"beef_nira_myoga.html", "鶏肉と根菜、しその薬膳スープ":"chicken_root_shiso_soup.html", "大根とネギの温かいスープ":"daikon_negi_soup.html", "牛肉と黒きくらげ、ニラのピリ辛炒め":"beef_kikurage_nira_spicy.html", "鶏レバーと大根の生姜煮":"chicken_liver_daikon_ginger.html", "豚肉と根菜、クコの薬膳スープ":"pork_root_gouqi_soup.html", "レバーと黒ゴマの炒め物":"liver_blacksesame_stirfry.html", "牛肉と黒きくらげ、玉ねぎのピリ辛炒め":"beef_kikurage_onion_spicy.html", "鶏レバーと大根、紅花の生姜煮":"chicken_liver_daikon_safflower.html", "豚肉と根菜、みょうが、クコの薬膳スープ":"pork_root_myoga_gouqi_soup.html", "黒酢と玉ねぎの温活ドリンク":"blackvinegar_onion_warmdrink.html", "鶏むね肉とハト麦、大根の生姜煮":"chicken_hatomugi_daikon.html", "豚肉とあずき、ごぼうの味噌汁":"pork_azuki_gobo_miso.html", "鶏肉と冬瓜、みょうがの生姜スープ":"chicken_togan_myoga_ginger.html", "小豆とハトムギのむくみ解消スープ":"azuki_hatomugi_detox.html", "大根と鶏むね肉、豆腐の菊花煮":"daikon_chicken_tofu_kikuka.html", "緑豆と鶏むね肉、きゅうりの冷製スープ":"ryokutou_chicken_cucumber_cold.html", "緑豆と豆腐の冷製スープ":"mungbean_tofu_cold.html", "セロリと豚肉、トマトの鎮静炒め":"celery_pork_tomato.html", "緑豆と豆腐、菊花、みょうがの鎮静スープ":"mungbean_tofu_chrysanthemum_myoga.html", "豚肉とキャベツ、しその卵とじ":"pork_cabbage_shiso_egg.html", "レモンとミントのデトックスジュース":"lemon_mint_detox.html", "大根と鶏むね肉、菊花のさっぱり煮":"daikon_chicken_kikuka_refresh.html", "緑豆と豆腐、菊花、梨の鎮静スープ":"mungtofu_kikuka_pear_soup.html", "豚肉とキャベツ、ミントの卵とじ":"pork_cabbage_mint_egg.html", "菊花と緑豆の冷やし茶":"kikuka_mungbean_cooltea.html", "牛肉とほうれん草、トマトのさっぱり炒め":"beef_spinach_tomato_refresh.html", "鶏レバーと緑豆、菊花の鎮静スープ":"chicken_liver_mung_chrysanthemum.html", "牛肉とキャベツ、クコの実の卵とじ":"beef_cabbage_goji_egg.html", "黒ゴマとクコの実のなつめスムージー":"black_sesame_goji_jujube_smoothie.html", "牛肉とトマト、セロリの鎮静炒め":"beef_tomato_celery_calm.html", "鶏レバーと緑豆、菊花、紅花の鎮静スープ":"chicken_liver_mung_chrysanthemum_safflower.html", "牛肉とキャベツ、みょうが、クコの卵とじ":"beef_cabbage_myoga_gouqi_egg.html", "ねぎと赤ワインの温活ドリンク":"greenonion_redwine_hotdrink.html", "冬瓜と鶏むね肉、ハト麦のさっぱり煮":"chicken_togan_hatomugi_refresh.html", "あずきと豆腐、きゅうりの冷製スープ":"azuki_tofu_cucumber_cold.html", "豚肉とキャベツ、ハト麦の卵とじ":"pork_cabbage_hatomugi_egg.html", "スイカとキュウリのデトックスジュース":"watermelon_cucumber_detox.html"
+      };
+      return map[name] || "";
+    }
+
+    // 4. 各コンテンツマッピングデータ
+    const yakuzennNames = {
+      "kyo_kan_kikyo": ["鶏肉と山芋の生姜煮込み", "鶏肉と根菜の薬膳スープ", "鮭ときのこの雑炊","鶏肉と生姜の薬膳スープ"],
+      "kyo_kan_kitai": ["鶏肉と山芋の生姜煮込み", "鶏肉と根菜の薬膳スープ", "鮭ときのこの雑炊","陳皮と豚肉の炒め物"],
+      "kyo_kan_kigyaku": ["鶏肉と生姜のポカポカ炒め", "鮭と根菜の味噌汁", "鶏肉とキャベツの生姜スープ","大根と生姜のお粥"],
+      "kyo_kan_kekkyo": ["鶏肉と根菜のぽかぽか煮込み", "レバーとほうれん草の元気チャージ炒め", "黒豆と鮭のあったか雑炊"],
+      "kyo_kan_oketsu": ["鶏肉と黒キクラゲの生姜煮込み", "鯖と根菜の煮込み", "ニラ玉と鶏ひき肉の生姜スープ","黒キクラゲと生姜のスープ"],
+      "kyo_kan_suitai": ["鶏肉とハト麦の生姜スープ", "あずきとかぼちゃの煮物", "鮭と大根の味噌汁","ハトムギと小豆のデトックス粥"],
+      "kyo_netsu_kikyo": ["山芋と鶏むね肉のさっぱり煮", "緑豆と豆腐の中華風スープ", "鶏肉とキャベツ、トマトの卵とじ","豆腐と梨の冷製スープ"],
+      "kyo_netsu_kitai": ["鶏むね肉とセロリ、トマトのさっぱり炒め", "緑豆と豆腐、しその薬膳スープ", "鶏肉とキャベツ、みょうがの卵とじ","ミントとグレープフルーツのサラダ"],
+      "kyo_netsu_kigyaku": ["鶏むね肉とセロリ、梨の鎮静炒め", "緑豆と豆腐、菊花の鎮静スープ","鶏肉とキャベツ、ミントの卵とじ","菊花とトマトの冷製スープ"],
+      "kyo_netsu_kekkyo": ["鶏レバーとほうれん草のトマト煮込み", "あさりと豆腐、トマトの中華風スープ", "牛肉とキャベツ、クコの実の卵とじ","黒ゴマとクコの実の豆乳プリン"],
+      "kyo_netsu_oketsu": ["鶏むね肉とセロリ、黒きくらげの鎮静炒め", "緑豆と豆腐、菊花、紅花の鎮静スープ", "牛肉とキャベツ、みょうが、クコの実の卵とじ","玉ねぎとベリーのデトックスジュース"],
+      "kyo_netsu_suitai": ["鶏むね肉とハト麦、冬瓜のさっぱり煮", "緑豆と豆腐、きゅうりの冷製スープ", "鶏肉とキャベツ、ハト麦の中華風卵とじ","スイカとハトムギのスムージー"],
+      "jitsu_kan_kikyo": ["大根の鶏むね肉のピリ辛煮", "ニラと牛肉の生姜炒め", "鮭と根菜の味噌汁","薬膳参鶏湯"],
+      "jitsu_kan_kitai": ["ニラと牛肉、玉ねぎのピリ辛炒め", "大根と鯖の生姜煮", "鶏肉と根菜の生姜スープ","シナモン風味の豚肉とネギ炒め"],
+      "jitsu_kan_kigyaku": ["大根と鶏むね肉の菊花煮", "ニラと牛肉、みょうがの生姜炒め", "鶏肉と根菜、しその薬膳スープ","大根とネギの温かいスープ"],
+      "jitsu_kan_kekkyo": ["牛肉と黒きくらげ、ニラのピリ辛炒め", "鶏レバーと大根の生姜煮", "豚肉と根菜、クコの薬膳スープ","レバーと黒ゴマの炒め物"],
+      "jitsu_kan_oketsu": ["牛肉と黒きくらげ、玉ねぎのピリ辛炒め", "鶏レバーと大根、紅花の生姜煮", "豚肉と根菜、みょうが、クコの薬膳スープ","黒酢と玉ねぎの温活ドリンク"],
+      "jitsu_kan_suitai": ["鶏むね肉とハト麦、大根の生姜煮", "豚肉とあずき、ごぼうの味噌汁", "鶏肉と冬瓜、みょうがの生姜スープ","小豆とハトムギのむくみ解消スープ"],
+      "jitsu_netsu_kikyo": ["大根と鶏むね肉、豆腐の菊花煮", "緑豆と鶏むね肉、きゅうりの冷製スープ", "鶏肉とキャベツ、トマトの卵とじ","緑豆と豆腐の冷製スープ"],
+      "jitsu_netsu_kitai": ["セロリと豚肉、トマトの鎮静炒め", "緑豆と豆腐、菊花、みょうがの鎮静スープ", "豚肉とキャベツ、しその卵とじ","レモンとミントのデトックスジュース"],
+      "jitsu_netsu_kigyaku": ["大根と鶏むね肉、菊花のさっぱり煮", "緑豆と豆腐、菊花、梨の鎮静スープ", "豚肉とキャベツ、ミントの卵とじ","菊花と緑豆の冷やし茶"],
+      "jitsu_netsu_kekkyo": ["牛肉とほうれん草、トマトのさっぱり炒め", "鶏レバーと緑豆、菊花の鎮静スープ", "牛肉とキャベツ、クコの実の卵とじ","黒ゴマとクコの実のなつめスムージー"],
+      "jitsu_netsu_oketsu": ["牛肉とトマト、セロリの鎮静炒め", "鶏レバーと緑豆、菊花、紅花の鎮静スープ", "牛肉とキャベツ、みょうが、クコの卵とじ","黒ゴマとクコの実のなつめスムージー"],
+      "jitsu_netsu_suitai": ["冬瓜と鶏むね肉、ハト麦のさっぱり煮", "あずきと豆腐、きゅうりの冷製スープ", "豚肉とキャベツ、ハト麦の卵とじ","スイカとキュウリのデトックスジュース"]
+    };
+
+    const tsuboNames = {
+      "kyo_kan_kikyo": ["関元", "気海", "足三里"], "kyo_kan_kitai": ["膻中", "太衝", "合谷"],
+      "kyo_kan_kigyaku": ["百会", "合谷", "足三里"], "kyo_kan_kekkyo": ["血海", "三陰交", "足三里"],
+      "kyo_kan_oketsu": ["合谷", "血海", "肩井"], "kyo_kan_suitai": ["水分", "豊隆", "足三里"],
+      "kyo_netsu_kikyo": ["気海", "合谷", "太衝"], "kyo_netsu_kitai": ["膻中", "太衝", "合谷"],
+      "kyo_netsu_kigyaku": ["百会", "合谷", "太衝"], "kyo_netsu_kekkyo": ["血海", "三陰交", "太衝"],
+      "kyo_netsu_oketsu": ["合谷", "血海", "肩井"], "kyo_netsu_suitai": ["水分", "豊隆", "太衝"],
+      "jitsu_kan_kikyo": ["関元", "気海", "大椎"], "jitsu_kan_kitai": ["膻中", "太衝", "大椎"],
+      "jitsu_kan_kigyaku": ["百会", "合谷", "大椎"], "jitsu_kan_kekkyo": ["血海", "三陰交", "大椎"],
+      "jitsu_kan_oketsu": ["合谷", "血海", "肩井","大椎"], "jitsu_kan_suitai": ["水分", "豊隆", "大椎"],
+      "jitsu_netsu_kikyo": ["気海", "合谷", "曲池"], "jitsu_netsu_kitai": ["膻中", "太衝", "曲池"],
+      "jitsu_netsu_kigyaku": ["百会", "合谷", "曲池"], "jitsu_netsu_kekkyo": ["血海", "三陰交", "曲池"],
+      "jitsu_netsu_oketsu": ["合谷", "血海", "肩井","曲池"], "jitsu_netsu_suitai": ["水分", "豊隆", "曲池"]
+    };
+
+    const yogaNames = {
+      "kyo_kan_kikyo": ["sun_salutation", "mountain_pose", "tree_pose"],
+      "kyo_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
+      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cooldown_pose"],
+      "kyo_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
+      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_pose"],
+      "kyo_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
+      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_open_pose"],
+      "kyo_netsu_kigyaku": ["plow_pose", "cooldown_pose", "meditation"],
+      "kyo_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
+      "kyo_netsu_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "kyo_netsu_suitai": ["tree_pose", "ankle_pose", "cooldown_pose"],
+      "jitsu_kan_kikyo": ["sun_salutation", "warrior_pose", "mountain_pose"],
+      "jitsu_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
+      "jitsu_kan_kigyaku": ["plow_pose", "rabbit_pose", "cooldown_pose"],
+      "jitsu_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
+      "jitsu_kan_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "jitsu_kan_suitai": ["tree_pose", "balance_pose", "ankle_pose"],
+      "jitsu_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
+      "jitsu_netsu_kitai": ["fish_pose", "camel_pose", "chest_open_pose"],
+      "jitsu_netsu_kigyaku": ["plow_pose", "cooldown_pose", "meditation"],
+      "jitsu_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
+      "jitsu_netsu_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "jitsu_netsu_suitai": ["tree_pose", "ankle_pose", "cooldown_pose"]
+    };
+
+    const yogaDisplayNames = {
+      "sun_salutation": "太陽礼拝", "mountain_pose": "山のポーズ", "tree_pose": "木のポーズ",
+      "twist_pose": "ねじりのポーズ", "cat_pose": "猫のポーズ", "camel_pose": "ラクダのポーズ",
+      "plow_pose": "鋤のポーズ", "rabbit_pose": "うさぎのポーズ", "cooldown_pose": "クールダウンのポーズ",
+      "triangle_pose": "三角のポーズ", "balance_pose": "バランスポーズ", "shoulder_blade_pose": "肩甲骨を動かすポーズ",
+      "pelvis_pose": "骨盤を動かすポーズ", "standing_tree_pose":"立木のポーズ", "ankle_pose": "足首を動かすポーズ",
+      "moon_pose": "月のポーズ", "relax_pose": "リラックスポーズ", "breathing": "呼吸法",
+      "fish_pose": "魚のポーズ", "chest_open_pose": "胸を開くポーズ", "meditation": "瞑想", "warrior_pose": "戦士のポーズ"
+    };
+
+    let points = { kikyo: 0, kitai: 0, kigyaku: 0, kekkyo: 0, oketsu: 0, suitai: 0, kyo: 0, jitsu: 0, kan: 0, netsu: 0 };
+    let current = 0;
+
+    // 5. アプリケーションロジック
+    function showQuestion() {
+      const progress = (current / questions.length) * 100;
+      document.getElementById("progressBar").style.width = progress + "%";
+      const diagDiv = document.getElementById("diagnosis");
+      diagDiv.innerHTML = "";
+      if (current >= questions.length) { finish(); return; }
+      
+      const q = questions[current];
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `<div class="question-text">${q.text}</div>`;
+      
+      const optDiv = document.createElement("div");
+      optDiv.className = "options";
+      // ここが5段階評価の部分です
+      [
+        {l:"とても当てはまる", v:2},
+        {l:"やや当てはまる", v:1},
+        {l:"どちらともいえない", v:0},
+        {l:"あまり当てはまらない", v:-1},
+        {l:"まったく当てはまらない", v:-2}
+      ].forEach(o => {
+        const id = `q${current}_${o.v}`;
+        optDiv.innerHTML += `<input type="radio" name="q" id="${id}" onclick="next('${q.type}',${o.v},${q.reverse||false})"><label for="${id}">${o.l}</label>`;
+      });
+      card.appendChild(optDiv);
+      diagDiv.appendChild(card);
+    }
+
+    function next(type, val, rev) {
+      points[type] += rev ? -val : val; current++; setTimeout(showQuestion, 200);
+    }
+
+    function finish() {
+      const type = points.kyo >= points.jitsu ? 'kyo' : 'jitsu';
+      const temp = points.kan >= points.netsu ? 'kan' : 'netsu';
+      const others = ['kikyo', 'kitai', 'kigyaku', 'kekkyo', 'oketsu', 'suitai'];
+      const max = others.reduce((a, b) => points[a] >= points[b] ? a : b);
+      const res = { display: [type, temp, max], key: `${type}_${temp}_${max}` };
+      localStorage.setItem("lastResult", JSON.stringify(res));
+      saveHistory(res);
+      display(res);
+    }
+
+    function display(res) {
+      document.getElementById("diagnosis").style.display = "none";
+      document.getElementById("result").style.display = "block";
+      const bArea = document.getElementById("badgeArea"); bArea.innerHTML = "";
+      res.display.forEach(t => {
+        const b = document.createElement("span"); b.className = "type-badge";
+        b.innerText = typeDetails[t].name; b.onclick = () => openModal(t);
+        bArea.appendChild(b);
+      });
+      document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
+      
+      const key = res.key;
+      // 薬膳表示
+      const yArea = document.getElementById("yakuzennImages"); yArea.innerHTML = "";
+      (yakuzennNames[key] || []).forEach((n, i) => {
+        yArea.innerHTML += `<figure><img src="images/yakuzenn/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="recipes/${getRecipeFilename(n)}">${n}</a></figcaption></figure>`;
+      });
+      // ツボ表示
+      const tArea = document.getElementById("tsuboImages"); tArea.innerHTML = "";
+      (tsuboNames[key] || []).forEach((n, i) => {
+        const fn = { "関元": "kangen.html", "気海": "kikai.html", "足三里":"ashisanri.html", "膻中": "danchu.html", "太衝": "taisho.html", "合谷": "goukoku.html", "百会": "hyakue.html", "血海": "kekkai.html", "三陰交":"saninkou.html", "肩井": "kensei.html", "水分": "suibun.html", "豊隆": "houryuu.html", "大椎": "daitui.html", "曲池": "kyokuchi.html" }[n] || "";
+        tArea.innerHTML += `<figure><img src="images/tsubo/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="tsubo/${fn}">${n}</a></figcaption></figure>`;
+      });
+      // ヨガ表示
+      const pArea = document.getElementById("yogaPlaceholder"); pArea.innerHTML = "";
+      (yogaNames[key] || []).forEach(id => {
+        pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
+      });
+    }
+
+    function openModal(t) {
+      document.getElementById("mTitle").innerText = typeDetails[t].name + "の解説";
+      document.getElementById("mContent").innerText = typeDetails[t].long;
+      document.getElementById("overlay").style.display = "block"; document.getElementById("modal").style.display = "block";
+    }
+    function closeModal() { document.getElementById("overlay").style.display = "none"; document.getElementById("modal").style.display = "none"; }
+    function startDiagnosis() { localStorage.removeItem("lastResult"); location.reload(); }
+    function saveHistory(res) {
+      let h = JSON.parse(localStorage.getItem("history")) || [];
+      h.unshift({ time: new Date().toLocaleString(), label: res.display.map(t=>typeDetails[t].name).join("/"), data: res });
+      localStorage.setItem("history", JSON.stringify(h.slice(0, 10)));
+    }
+    function toggleHistory() {
+      const area = document.getElementById("historyList");
+      if(area.style.display === "block") { area.style.display = "none"; return; }
+      const data = JSON.parse(localStorage.getItem("history")) || [];
+      area.innerHTML = data.map(i => `<div style="border-bottom:1px solid #eee; padding:5px;">${i.time}<br><b>${i.label}</b></div>`).join("");
+      area.style.display = "block";
+    }
+
+    window.onload = () => {
+      const last = localStorage.getItem("lastResult");
+      if(last) { display(JSON.parse(last)); } else { showQuestion(); }
+    };
+  </script>
 </body>
 </html>
