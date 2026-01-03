@@ -16,7 +16,6 @@
     .options { display: flex; flex-direction: column; gap: 10px; }
     .options input { display: none; }
     .options label { background: #fffafa; border: 1px solid #f5a3a3; padding: 12px; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
-    .options label:hover { background: var(--accent); color: white; }
     .type-badge { display: inline-block; background: var(--main); color: white; padding: 6px 16px; border-radius: 20px; font-size: 1.1rem; margin: 5px; cursor: pointer; }
     .type-desc-box { background: #fff3f3; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 4px solid var(--accent); font-size: 0.9rem; }
     button { background: #f7c9c9; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; color: var(--main); font-weight: bold; margin: 5px; }
@@ -28,12 +27,23 @@
     #modal, #overlay { display: none; position: fixed; z-index: 2000; }
     #overlay { top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
     #modal { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; background: white; padding: 25px; border-radius: 20px; text-align: center; }
+    /* PCでのみホバー（色変化）を有効にする */
+    @media (hover: hover) {
+    .options label:hover { background: var(--accent); color: white; }
+    }
+    /* タップした瞬間だけ色を変える */
+    .options label:active { background: var(--accent); color: white; }
+    /* スマホでのタップハイライトを消す（お好みで） */
+    .options label { -webkit-tap-highlight-color: transparent; }
   </style>
 </head>
 <body>
   <div id="progressBarContainer"><div id="progressBar"></div></div>
   <h1>和らぎ体質診断</h1>
   <div id="diagnosis"></div>
+  <div style="text-align: center; margin-top: 10px;">
+   <button id="back-btn" style="display:none; background:none; border:none; color:#888; cursor:pointer;" onclick="goBack()">← 前に戻る</button>
+  </div>
   <div id="result" class="card" style="display:none">
     <h2 style="font-size: 0.9rem; color: #888;">あなたの診断結果</h2>
     <div id="badgeArea"></div>
@@ -185,9 +195,11 @@
 
     let points = { kikyo: 0, kitai: 0, kigyaku: 0, kekkyo: 0, oketsu: 0, suitai: 0, kyo: 0, jitsu: 0, kan: 0, netsu: 0 };
     let current = 0;
+    let history_scores = []; // スコアの履歴を保存する箱
 
     // 5. アプリケーションロジック
     function showQuestion() {
+      document.getElementById("back-btn").style.display = current > 0 ? "inline-block" : "none";
       const progress = (current / questions.length) * 100;
       document.getElementById("progressBar").style.width = progress + "%";
       const diagDiv = document.getElementById("diagnosis");
@@ -217,7 +229,17 @@
     }
 
     function next(type, val, rev) {
-      points[type] += rev ? -val : val; current++; setTimeout(showQuestion, 200);
+      history_scores.push({...points}); // 今のスコアを保存
+      points[type] += rev ? -val : val;
+      current++;
+      setTimeout(showQuestion, 200);
+    }
+    function goBack() {
+      if (current > 0) {
+        current--;
+        points = history_scores.pop(); // 一つ前のスコアを復元
+        showQuestion();
+      }
     }
 
     function finish() {
@@ -228,6 +250,9 @@
       const res = { display: [type, temp, max], key: `${type}_${temp}_${max}` };
       localStorage.setItem("lastResult", JSON.stringify(res));
       saveHistory(res);
+      // URLの末尾に結果をくっつける
+      const newURL = window.location.origin + window.location.pathname + "?result=" + res.key;
+      window.history.pushState({}, '', newURL);
       display(res);
     }
 
@@ -282,8 +307,15 @@
     }
 
     window.onload = () => {
-      const last = localStorage.getItem("lastResult");
-      if(last) { display(JSON.parse(last)); } else { showQuestion(); }
+      const params = new URLSearchParams(window.location.search);
+      const resultParam = params.get('result');
+      if (resultParam) {
+        const keys = resultParam.split('_');
+        display({ display: keys, key: resultParam });
+      } else {
+        const last = localStorage.getItem("lastResult");
+        if(last) { display(JSON.parse(last)); } else { showQuestion(); }
+      }
     };
   </script>
 </body>
