@@ -315,7 +315,10 @@
       document.getElementById("overlay").style.display = "block"; document.getElementById("modal").style.display = "block";
     }
     function closeModal() { document.getElementById("overlay").style.display = "none"; document.getElementById("modal").style.display = "none"; }
-    function startDiagnosis() { localStorage.removeItem("lastResult"); location.reload(); }
+    function startDiagnosis() { 
+      localStorage.removeItem("lastResult"); 
+      window.location.href = window.location.pathname;
+    }
     function saveHistory(res) {
       let h = JSON.parse(localStorage.getItem("history")) || [];
       h.unshift({ time: new Date().toLocaleString(), label: res.display.map(t=>typeDetails[t].name).join("/"), data: res });
