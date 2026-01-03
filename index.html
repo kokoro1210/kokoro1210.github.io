@@ -57,7 +57,17 @@
     <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのツボ</h3>
     <div id="tsuboImages"></div>
     <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのヨガ</h3>
-    <div id="yogaPlaceholder"></div>
+    <div id="yogaPlaceholder"></div> 
+    <div id="result" style="display:none; text-align:center;">
+      <div id="res-display"></div>
+  
+      <div style="margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px;">
+        <p style="font-size:0.8rem; color:#666;">この結果を友達に送る：</p>
+        <button onclick="copyURL()" style="background:var(--accent); color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer;">URLをコピーしてシェア</button>
+      </div>
+
+      <button onclick="localStorage.removeItem('lastResult'); location.reload();" style="margin-top:20px;">最初からやり直す</button>
+    </div>
   </div>
   <div id="overlay" onclick="closeModal()"></div>
   <div id="modal"><h3 id="mTitle"></h3><p id="mContent" style="text-align:left; font-size:0.9rem;"></p><button onclick="closeModal()">閉じる</button></div>
@@ -199,6 +209,8 @@
 
     // 5. アプリケーションロジック
     function showQuestion() {
+      const isResultScreen = document.getElementById("result").style.display === "block";
+      document.getElementById("back-btn").style.display = (current > 0 || isResultScreen) ? "inline-block" : "none";
       document.getElementById("back-btn").style.display = current > 0 ? "inline-block" : "none";
       const progress = (current / questions.length) * 100;
       document.getElementById("progressBar").style.width = progress + "%";
@@ -236,8 +248,12 @@
     }
     function goBack() {
       if (current > 0) {
+        // もし今、結果画面を見ていたら、結果画面を隠して診断画面を出す
+        document.getElementById("result").style.display = "none";
+        document.getElementById("diagnosis").style.display = "block";
+
         current--;
-        points = history_scores.pop(); // 一つ前のスコアを復元
+        points = history_scores.pop(); // 前のスコアを復元
         showQuestion();
       }
     }
@@ -304,6 +320,11 @@
       const data = JSON.parse(localStorage.getItem("history")) || [];
       area.innerHTML = data.map(i => `<div style="border-bottom:1px solid #eee; padding:5px;">${i.time}<br><b>${i.label}</b></div>`).join("");
       area.style.display = "block";
+    }
+    function copyURL() {
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert("診断結果のURLをコピーしました！LINEなどで送ってみてください。");
+      });
     }
 
     window.onload = () => {
