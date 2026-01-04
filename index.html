@@ -313,26 +313,55 @@
       });
       // グラフを描画する
       const ctx = document.getElementById('myRadarChart').getContext('2d');
-  
-      // スコアがマイナスにならないように調整（最小値を0にするなど）
+      // --- ここから差し替え ---
+      const ctx = document.getElementById('myRadarChart').getContext('2d');
+
+      // 不調スコア（今のpoints）を合計
+      const ki_bad = points.kikyo + points.kitai + points.kigyaku;
+      const ketsu_bad = points.kekkyo + points.oketsu;
+      const sui_bad = points.suitai;
+
+      // 【重要】不調なほど凹むように「10点満点」で計算し直す
       const chartData = [
-        Math.max(0, 10 - (points.kikyo + points.kitai + points.kigyaku)), // 気の充実度
-        Math.max(0, 10 - (points.kekkyo + points.oketsu)),               // 血の充実度
-        Math.max(0, 10 - points.suitai)
-      ];  
-      new Chart(ctx, {
+        Math.max(0, 10 - (ki_bad / 1.8)),   // 気（最大18点を10点満点に）
+        Math.max(0, 10 - (ketsu_bad / 1.2)), // 血（最大12点を10点満点に）
+        Math.max(0, 10 - (sui_bad / 0.6))    // 水（最大6点を10点満点に）
+      ];
+
+      // すでにグラフがある場合は一度消す（重なり防止）
+      if (window.myChartInst) {
+        window.myChartInst.destroy();
+      }
+
+      window.myChartInst = new Chart(ctx, {
         type: 'radar',
         data: {
           labels: ['気 (エネルギー)', '血 (めぐり)', '水 (水分代謝)'],
           datasets: [{
-          label: 'あなたの体質バランス',
-          data: chartData,
-          backgroundColor: 'rgba(179, 92, 92, 0.2)', // --mainの色(b35c5c)
-          borderColor: '#b35c5c',
-          borderWidth: 2,
-          pointBackgroundColor: '#b35c5c'
+            label: 'あなたの体質バランス',
+            data: chartData,
+            backgroundColor: 'rgba(179, 92, 92, 0.3)', 
+            borderColor: '#b35c5c',
+            borderWidth: 2,
+            pointBackgroundColor: '#b35c5c'
           }]
         },
+        options: {
+          scales: {
+            r: {
+              min: 0,
+              max: 10, // グラフのサイズを10で固定
+              ticks: { display: false },
+              pointLabels: { font: { size: 12, weight: 'bold' } }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
+  
         options: {
           scales: {
             r: {
