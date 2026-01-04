@@ -362,6 +362,7 @@
       // ヨガ表示
       const pArea = document.getElementById("yogaPlaceholder"); pArea.innerHTML = "";
       (yogaNames[key] || []).forEach(id => {
+        // 画像のファイル名 (${id}.jpg) と リンク先のファイル名 (${id}.html) を一致させる
         pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
       });
     }
