@@ -50,7 +50,7 @@
     <div id="badgeArea"></div>
     <div id="summaryDesc" class="type-desc-box"></div>
     
-    <div style="width: 100%; max-width: 320px; margin: 20px auto;">
+    <div style="width: 100%; max-width: 350px; margin: 0 auto; padding: 10px;">
         <canvas id="myRadarChart"></canvas>
     </div>
 
@@ -176,17 +176,17 @@
       "jitsu_netsu_oketsu": ["合谷", "血海", "肩井","曲池"], "jitsu_netsu_suitai": ["水分", "豊隆", "曲池"]
     };
 
-    // フォルダ内のファイル名に合わせたID（修正済み）
+    // フォルダ内のファイル名に合わせたID（完全修正版）
     const yogaNames = {
       "kyo_kan_kikyo": ["sun_salutation", "mountain_pose", "tree_pose"],
       "kyo_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
-      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_dpwn_pose"], // 修正
+      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_dpwn_pose"], // cool_dpwn_pose に修正
       "kyo_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
-      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
-      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"], // 修正
+      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // shoulder_blade_moe, pelvic_move に修正
+      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"], // ankle_move に修正
       "kyo_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
-      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening"], // 修正
-      "kyo_netsu_kigyaku": ["plow_pose", "cool_dpwn_pose", "meditation"], // 修正
+      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening"], // chest_opening に修正
+      "kyo_netsu_kigyaku": ["plow_pose", "cool_dpwn_pose", "meditation"], // cool_dpwn_pose に修正
       "kyo_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
       "kyo_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
       "kyo_netsu_suitai": ["tree_pose", "ankle_move", "cool_dpwn_pose"], // 修正
@@ -204,20 +204,20 @@
       "jitsu_netsu_suitai": ["tree_pose", "ankle_move", "cool_dpwn_pose"] // 修正
     };
 
-    // フォルダ内のファイル名とIDをマッピング（修正済み）
+    // フォルダ内のファイル名とIDをマッピング（完全修正版）
     const yogaDisplayNames = {
       "sun_salutation": "太陽礼拝", "mountain_pose": "山のポーズ", "tree_pose": "木のポーズ",
       "twist_pose": "ねじりのポーズ", "cat_pose": "猫のポーズ", "camel_pose": "ラクダのポーズ",
       "plow_pose": "鋤のポーズ", "rabbit_pose": "うさぎのポーズ", 
-      "cool_dpwn_pose": "クールダウンのポーズ", // 修正
+      "cool_dpwn_pose": "クールダウンのポーズ", // ファイル名 cool_dpwn_pose.jpg に対応
       "triangle_pose": "三角のポーズ", "balance_pose": "バランスポーズ", 
-      "shoulder_blade_moe": "肩甲骨を動かすポーズ", // 修正
-      "pelvic_move": "骨盤を動かすポーズ", // 修正
+      "shoulder_blade_moe": "肩甲骨を動かすポーズ", // ファイル名 shoulder_blade_moe.jpg に対応
+      "pelvic_move": "骨盤を動かすポーズ", // ファイル名 pelvic_move.jpg に対応
       "standing_tree_pose":"立木のポーズ", 
-      "ankle_move": "足首を動かすポーズ", // 修正
+      "ankle_move": "足首を動かすポーズ", // ファイル名 ankle_move.jpg に対応
       "moon_pose": "月のポーズ", "relax_pose": "リラックスポーズ", "breathing": "呼吸法",
       "fish_pose": "魚のポーズ", 
-      "chest_opening": "胸を開くポーズ", // 修正
+      "chest_opening": "胸を開くポーズ", // ファイル名 chest_opening.jpg に対応
       "meditation": "瞑想", "warrior_pose": "戦士のポーズ"
     };
 
@@ -299,7 +299,6 @@
       document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
       
       // --- レーダーチャート描画ロジック ---
-      // --- レーダーチャート描画ロジック ---
       const ctx = document.getElementById('myRadarChart').getContext('2d');
 
       // スコアの集計
@@ -332,6 +331,7 @@
               }]
           },
           options: {
+              layout: { padding: 10 }, // 枠内に収まるようパディング追加
               scales: {
                   r: {
                       min: 0,
