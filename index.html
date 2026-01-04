@@ -299,6 +299,7 @@
       document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
       
       // --- レーダーチャート描画ロジック ---
+      // --- レーダーチャート描画ロジック ---
       const ctx = document.getElementById('myRadarChart').getContext('2d');
 
       // スコアの集計
@@ -306,13 +307,12 @@
       const ketsu_bad = points.kekkyo + points.oketsu;
       const sui_bad = points.suitai;
 
-      // 充実度への変換（10点満点。悪いほど凹む）
+      // 修正：厳しめ判定（割り算をなくして、少しの不調でもグラフを凹ませる）
       const chartData = [
-          Math.max(0, 10 - (ki_bad / 1.8)), 
-          Math.max(0, 10 - (ketsu_bad / 1.2)), 
-          Math.max(0, 10 - (sui_bad / 0.6))
+          Math.max(0, 10 - ki_bad),           // 気：不調スコアをそのまま引く
+          Math.max(0, 10 - ketsu_bad),        // 血：不調スコアをそのまま引く
+          Math.max(0, 10 - (sui_bad * 2))     // 水：質問が少ないので2倍の重みで引く
       ];
-
       // 前回のグラフがあれば破棄
       if (myChartInst) {
           myChartInst.destroy();
