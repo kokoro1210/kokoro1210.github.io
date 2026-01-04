@@ -293,121 +293,61 @@
         bArea.appendChild(b);
       });
       document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
-      
+      // 薬膳・ツボ・ヨガの画像表示
       const key = res.key;
-      // 薬膳表示
       const yArea = document.getElementById("yakuzennImages"); yArea.innerHTML = "";
       (yakuzennNames[key] || []).forEach((n, i) => {
-        yArea.innerHTML += `<figure><img src="images/yakuzenn/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="recipes/${getRecipeFilename(n)}">${n}</a></figcaption></figure>`;
+        yArea.innerHTML += `<figure><img src="images/yakuzenn/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption>${n}</figcaption></figure>`;
       });
-      // ツボ表示
+
       const tArea = document.getElementById("tsuboImages"); tArea.innerHTML = "";
       (tsuboNames[key] || []).forEach((n, i) => {
-        const fn = { "関元": "kangen.html", "気海": "kikai.html", "足三里":"ashisanri.html", "膻中": "danchu.html", "太衝": "taisho.html", "合谷": "goukoku.html", "百会": "hyakue.html", "血海": "kekkai.html", "三陰交":"saninkou.html", "肩井": "kensei.html", "水分": "suibun.html", "豊隆": "houryuu.html", "大椎": "daitui.html", "曲池": "kyokuchi.html" }[n] || "";
-        tArea.innerHTML += `<figure><img src="images/tsubo/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="tsubo/${fn}">${n}</a></figcaption></figure>`;
+        tArea.innerHTML += `<figure><img src="images/tsubo/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption>${n}</figcaption></figure>`;
       });
-      // ヨガ表示
+
       const pArea = document.getElementById("yogaPlaceholder"); pArea.innerHTML = "";
       (yogaNames[key] || []).forEach(id => {
-        pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
-      });
-    }
-    function openModal(t) {
-      document.getElementById("mTitle").innerText = typeDetails[t].name + "の解説";
-      // グラフを描画する
-      const ctx = document.getElementById('myRadarChart').getContext('2d');
-      // --- ここから差し替え ---
-      const ctx = document.getElementById('myRadarChart').getContext('2d');
-
-      // 不調スコア（今のpoints）を合計
-      const ki_bad = points.kikyo + points.kitai + points.kigyaku;
-      const ketsu_bad = points.kekkyo + points.oketsu;
-      const sui_bad = points.suitai;
-
-      // 【重要】不調なほど凹むように「10点満点」で計算し直す
-      const chartData = [
-        Math.max(0, 10 - (ki_bad / 1.8)),   // 気（最大18点を10点満点に）
-        Math.max(0, 10 - (ketsu_bad / 1.2)), // 血（最大12点を10点満点に）
-        Math.max(0, 10 - (sui_bad / 0.6))    // 水（最大6点を10点満点に）
-      ];
-
-      // すでにグラフがある場合は一度消す（重なり防止）
-      if (window.myChartInst) {
-        window.myChartInst.destroy();
-      }
-
-      window.myChartInst = new Chart(ctx, {
-        type: 'radar',
-        data: {
-          labels: ['気 (エネルギー)', '血 (めぐり)', '水 (水分代謝)'],
-          datasets: [{
-            label: 'あなたの体質バランス',
-            data: chartData,
-            backgroundColor: 'rgba(179, 92, 92, 0.3)', 
-            borderColor: '#b35c5c',
-            borderWidth: 2,
-            pointBackgroundColor: '#b35c5c'
-          }]
-        },
-        options: {
-          scales: {
-            r: {
-              min: 0,
-              max: 10, // グラフのサイズを10で固定
-              ticks: { display: false },
-              pointLabels: { font: { size: 12, weight: 'bold' } }
-            }
-          },
-          plugins: {
-            legend: { display: false }
-          }
-        }
+        pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption>${yogaDisplayNames[id] || id}</figcaption></figure>`;
       });
 
-  
-        options: {
-          scales: {
-            r: {
-              min: 0,
-              suggestedMax: 10, // 質問数に応じて調整してください
-              ticks: { stepSize: 2, display: false } // 目盛り数字を消すとスッキリします
-            }
-          }
-        }
-      });
-    }
+    } 
+
 
     function openModal(t) {
       document.getElementById("mTitle").innerText = typeDetails[t].name + "の解説";
       document.getElementById("mContent").innerText = typeDetails[t].long;
-      document.getElementById("overlay").style.display = "block"; document.getElementById("modal").style.display = "block";
+      document.getElementById("overlay").style.display = "block"; 
+      document.getElementById("modal").style.display = "block";
     }
-    function closeModal() { document.getElementById("overlay").style.display = "none"; document.getElementById("modal").style.display = "none"; }
+
+    function closeModal() { 
+      document.getElementById("overlay").style.display = "none"; 
+      document.getElementById("modal").style.display = "none"; 
+    }
+
     function startDiagnosis() { 
       localStorage.removeItem("lastResult"); 
-      window.location.href = window.location.pathname;
+      location.reload(); 
     }
+
     function saveHistory(res) {
       let h = JSON.parse(localStorage.getItem("history")) || [];
       h.unshift({ time: new Date().toLocaleString(), label: res.display.map(t=>typeDetails[t].name).join("/"), data: res });
       localStorage.setItem("history", JSON.stringify(h.slice(0, 10)));
     }
+
     function toggleHistory() {
       const area = document.getElementById("historyList");
-      if(area.style.display === "block") { area.style.display = "none"; return; }
+      area.style.display = area.style.display === "block" ? "none" : "block";
       const data = JSON.parse(localStorage.getItem("history")) || [];
       area.innerHTML = data.map(i => `<div style="border-bottom:1px solid #eee; padding:5px;">${i.time}<br><b>${i.label}</b></div>`).join("");
-      area.style.display = "block";
-    }
-    function copyURL() {
-      const url = window.location.href;
-      navigator.clipboard.writeText(window.location.href).then(() => {
-        alert("診断結果のURLをコピーしました！LINEなどで送ってみてください。");
-      }).catch(err => {
-        console.error("コピー失敗: ", err);
-      });
     }
 
+    function copyURL() {
+      navigator.clipboard.writeText(window.location.href).then(() => alert("URLをコピーしました！"));
+    }
+
+    // アプリ起動時の処理（これが display の外にないと動きません）
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
       const resultParam = params.get('result');
@@ -419,10 +359,9 @@
         if(last) { 
           display(JSON.parse(last)); 
         } else { 
-        showQuestion(); 
+          showQuestion(); // 診断開始！
         }
       }
     };
-  </script>
 </body>
 </html>
