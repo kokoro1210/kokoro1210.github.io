@@ -311,6 +311,9 @@
       (yogaNames[key] || []).forEach(id => {
         pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
       });
+    }
+    function openModal(t) {
+      document.getElementById("mTitle").innerText = typeDetails[t].name + "の解説";
       // グラフを描画する
       const ctx = document.getElementById('myRadarChart').getContext('2d');
       // --- ここから差し替え ---
