@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>和らぎ体質診断</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root { --main: #b35c5c; --bg: #fdf6f0; --accent: #f48f8f; --white: #ffffff; }
     body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg); color: #444; padding: 20px; margin-top: 40px; }
@@ -49,35 +49,36 @@
     <h2 style="font-size: 0.9rem; color: #888;">あなたの診断結果</h2>
     <div id="badgeArea"></div>
     <div id="summaryDesc" class="type-desc-box"></div>
-    <p style="font-size: 0.7rem; color: #aaa;">※バッジをタップで詳細解説</p>
-    <div style="width: 100%; max-width: 300px; margin: 20px auto;">
-      <canvas id="myRadarChart"></canvas>
+    
+    <div style="width: 100%; max-width: 320px; margin: 20px auto;">
+        <canvas id="myRadarChart"></canvas>
     </div>
-    <button onclick="toggleHistory()">履歴表示</button>
-    <button onclick="startDiagnosis()">最初から</button>
+
+    <p style="font-size: 0.7rem; color: #aaa; text-align: center;">※バッジをタップで詳細解説</p>
+    
+    <div style="text-align: center; margin: 20px 0;">
+        <button onclick="toggleHistory()">履歴表示</button>
+        <button onclick="startDiagnosis()">最初から</button>
+    </div>
+    
     <div id="historyList" style="display:none; margin-top:10px; font-size:0.8rem;"></div>
+    
     <h3 style="margin-top:30px; color:var(--main); border-bottom:1px solid #eee;">おすすめの薬膳</h3>
     <div id="yakuzennImages"></div>
-    <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 10px; border: 1px dashed var(--accent);">
+    
+    <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 10px; border: 1px dashed var(--accent); text-align: center;">
       <p style="font-size: 0.9rem; margin-bottom: 8px;">✨ 診断結果を友達にシェアする</p>
       <button class="primary" onclick="copyURL()">結果のリンクをコピーする</button>
       <p style="font-size: 0.7rem; color: #888; margin-top: 5px;">※コピーしたURLをLINEやSNSに貼り付けて送れます</p>
     </div>
+    
     <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのツボ</h3>
     <div id="tsuboImages"></div>
+    
     <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのヨガ</h3>
     <div id="yogaPlaceholder"></div> 
-    <div id="result" style="display:none; text-align:center;">
-      <div id="res-display"></div>
-  
-      <div style="margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px;">
-        <p style="font-size:0.8rem; color:#666;">この結果を友達に送る：</p>
-        <button onclick="copyURL()" style="background:var(--accent); color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer;">URLをコピーしてシェア</button>
-      </div>
-
-      <button onclick="localStorage.removeItem('lastResult'); location.reload();" style="margin-top:20px;">最初からやり直す</button>
-    </div>
   </div>
+
   <div id="overlay" onclick="closeModal()"></div>
   <div id="modal"><h3 id="mTitle"></h3><p id="mContent" style="text-align:left; font-size:0.9rem;"></p><button onclick="closeModal()">閉じる</button></div>
 
@@ -175,52 +176,60 @@
       "jitsu_netsu_oketsu": ["合谷", "血海", "肩井","曲池"], "jitsu_netsu_suitai": ["水分", "豊隆", "曲池"]
     };
 
+    // フォルダ内のファイル名に合わせたID（修正済み）
     const yogaNames = {
       "kyo_kan_kikyo": ["sun_salutation", "mountain_pose", "tree_pose"],
       "kyo_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
-      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_down_pose"],
+      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_dpwn_pose"], // 修正
       "kyo_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
-      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvis_move"],
-      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"],
+      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
+      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"], // 修正
       "kyo_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
-      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening_pose"],
-      "kyo_netsu_kigyaku": ["plow_pose", "cool_down_pose", "meditation"],
+      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening"], // 修正
+      "kyo_netsu_kigyaku": ["plow_pose", "cool_dpwn_pose", "meditation"], // 修正
       "kyo_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
-      "kyo_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvis_move"],
-      "kyo_netsu_suitai": ["tree_pose", "ankle_move", "cool_down_pose"],
+      "kyo_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
+      "kyo_netsu_suitai": ["tree_pose", "ankle_move", "cool_dpwn_pose"], // 修正
       "jitsu_kan_kikyo": ["sun_salutation", "warrior_pose", "mountain_pose"],
       "jitsu_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
-      "jitsu_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_down_pose"],
+      "jitsu_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_dpwn_pose"], // 修正
       "jitsu_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
-      "jitsu_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvis_move"],
-      "jitsu_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"],
+      "jitsu_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
+      "jitsu_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"], // 修正
       "jitsu_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
-      "jitsu_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening_pose"],
-      "jitsu_netsu_kigyaku": ["plow_pose", "cool_down_pose", "meditation"],
+      "jitsu_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening"], // 修正
+      "jitsu_netsu_kigyaku": ["plow_pose", "cool_dpwn_pose", "meditation"], // 修正
       "jitsu_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
-      "jitsu_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvis_move"],
-      "jitsu_netsu_suitai": ["tree_pose", "ankle_move", "cool_down_pose"]
+      "jitsu_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
+      "jitsu_netsu_suitai": ["tree_pose", "ankle_move", "cool_dpwn_pose"] // 修正
     };
 
+    // フォルダ内のファイル名とIDをマッピング（修正済み）
     const yogaDisplayNames = {
       "sun_salutation": "太陽礼拝", "mountain_pose": "山のポーズ", "tree_pose": "木のポーズ",
       "twist_pose": "ねじりのポーズ", "cat_pose": "猫のポーズ", "camel_pose": "ラクダのポーズ",
-      "plow_pose": "鋤のポーズ", "rabbit_pose": "うさぎのポーズ", "cool_down_pose": "クールダウンのポーズ",
-      "triangle_pose": "三角のポーズ", "balance_pose": "バランスポーズ", "shoulder_blade_moe": "肩甲骨を動かすポーズ",
-      "pelvis_move": "骨盤を動かすポーズ", "standing_tree_pose":"立木のポーズ", "ankle_move": "足首を動かすポーズ",
+      "plow_pose": "鋤のポーズ", "rabbit_pose": "うさぎのポーズ", 
+      "cool_dpwn_pose": "クールダウンのポーズ", // 修正
+      "triangle_pose": "三角のポーズ", "balance_pose": "バランスポーズ", 
+      "shoulder_blade_moe": "肩甲骨を動かすポーズ", // 修正
+      "pelvic_move": "骨盤を動かすポーズ", // 修正
+      "standing_tree_pose":"立木のポーズ", 
+      "ankle_move": "足首を動かすポーズ", // 修正
       "moon_pose": "月のポーズ", "relax_pose": "リラックスポーズ", "breathing": "呼吸法",
-      "fish_pose": "魚のポーズ", "chest_opening_pose": "胸を開くポーズ", "meditation": "瞑想", "warrior_pose": "戦士のポーズ"
+      "fish_pose": "魚のポーズ", 
+      "chest_opening": "胸を開くポーズ", // 修正
+      "meditation": "瞑想", "warrior_pose": "戦士のポーズ"
     };
 
     let points = { kikyo: 0, kitai: 0, kigyaku: 0, kekkyo: 0, oketsu: 0, suitai: 0, kyo: 0, jitsu: 0, kan: 0, netsu: 0 };
     let current = 0;
     let history_scores = []; // スコアの履歴を保存する箱
+    let myChartInst = null; // チャートインスタンス保存用
 
     // 5. アプリケーションロジック
     function showQuestion() {
       const isResultScreen = document.getElementById("result").style.display === "block";
       document.getElementById("back-btn").style.display = (current > 0 || isResultScreen) ? "inline-block" : "none";
-      document.getElementById("back-btn").style.display = current > 0 ? "inline-block" : "none";
       const progress = (current / questions.length) * 100;
       document.getElementById("progressBar").style.width = progress + "%";
       const diagDiv = document.getElementById("diagnosis");
@@ -234,7 +243,6 @@
       
       const optDiv = document.createElement("div");
       optDiv.className = "options";
-      // ここが5段階評価の部分です
       [
         {l:"とても当てはまる", v:2},
         {l:"やや当てはまる", v:1},
@@ -257,10 +265,8 @@
     }
     function goBack() {
       if (current > 0) {
-        // もし今、結果画面を見ていたら、結果画面を隠して診断画面を出す
         document.getElementById("result").style.display = "none";
         document.getElementById("diagnosis").style.display = "block";
-
         current--;
         points = history_scores.pop(); // 前のスコアを復元
         showQuestion();
@@ -278,8 +284,6 @@
       // URLの末尾に結果をくっつける
       const newURL = window.location.origin + window.location.pathname + "?result=" + res.key;
       window.history.pushState({}, '', newURL);
-      localStorage.setItem("lastResult", JSON.stringify(res));
-      saveHistory(res);
       display(res);
     }
 
@@ -293,61 +297,106 @@
         bArea.appendChild(b);
       });
       document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
-      // 薬膳・ツボ・ヨガの画像表示
+      
+      // --- レーダーチャート描画ロジック ---
+      const ctx = document.getElementById('myRadarChart').getContext('2d');
+
+      // スコアの集計
+      const ki_bad = points.kikyo + points.kitai + points.kigyaku;
+      const ketsu_bad = points.kekkyo + points.oketsu;
+      const sui_bad = points.suitai;
+
+      // 充実度への変換（10点満点。悪いほど凹む）
+      const chartData = [
+          Math.max(0, 10 - (ki_bad / 1.8)), 
+          Math.max(0, 10 - (ketsu_bad / 1.2)), 
+          Math.max(0, 10 - (sui_bad / 0.6))
+      ];
+
+      // 前回のグラフがあれば破棄
+      if (myChartInst) {
+          myChartInst.destroy();
+      }
+
+      myChartInst = new Chart(ctx, {
+          type: 'radar',
+          data: {
+              labels: ['気 (エネルギー)', '血 (めぐり)', '水 (水分代謝)'],
+              datasets: [{
+                  label: 'あなたの体質バランス',
+                  data: chartData,
+                  backgroundColor: 'rgba(179, 92, 92, 0.4)',
+                  borderColor: '#b35c5c',
+                  borderWidth: 2,
+                  pointBackgroundColor: '#b35c5c'
+              }]
+          },
+          options: {
+              scales: {
+                  r: {
+                      min: 0,
+                      max: 10,
+                      ticks: { display: false },
+                      pointLabels: { font: { size: 12, weight: 'bold' } }
+                  }
+              },
+              plugins: {
+                  legend: { display: false }
+              }
+          }
+      });
+      // ------------------------------------
+
       const key = res.key;
+      // 薬膳表示
       const yArea = document.getElementById("yakuzennImages"); yArea.innerHTML = "";
       (yakuzennNames[key] || []).forEach((n, i) => {
-        yArea.innerHTML += `<figure><img src="images/yakuzenn/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption>${n}</figcaption></figure>`;
+        yArea.innerHTML += `<figure><img src="images/yakuzenn/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="recipes/${getRecipeFilename(n)}">${n}</a></figcaption></figure>`;
       });
-
+      // ツボ表示
       const tArea = document.getElementById("tsuboImages"); tArea.innerHTML = "";
       (tsuboNames[key] || []).forEach((n, i) => {
-        tArea.innerHTML += `<figure><img src="images/tsubo/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption>${n}</figcaption></figure>`;
+        const fn = { "関元": "kangen.html", "気海": "kikai.html", "足三里":"ashisanri.html", "膻中": "danchu.html", "太衝": "taisho.html", "合谷": "goukoku.html", "百会": "hyakue.html", "血海": "kekkai.html", "三陰交":"saninkou.html", "肩井": "kensei.html", "水分": "suibun.html", "豊隆": "houryuu.html", "大椎": "daitui.html", "曲池": "kyokuchi.html" }[n] || "";
+        tArea.innerHTML += `<figure><img src="images/tsubo/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="tsubo/${fn}">${n}</a></figcaption></figure>`;
       });
-
+      // ヨガ表示
       const pArea = document.getElementById("yogaPlaceholder"); pArea.innerHTML = "";
       (yogaNames[key] || []).forEach(id => {
-        pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption>${yogaDisplayNames[id] || id}</figcaption></figure>`;
+        pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
       });
-
     }
-
 
     function openModal(t) {
       document.getElementById("mTitle").innerText = typeDetails[t].name + "の解説";
       document.getElementById("mContent").innerText = typeDetails[t].long;
-      document.getElementById("overlay").style.display = "block"; 
-      document.getElementById("modal").style.display = "block";
+      document.getElementById("overlay").style.display = "block"; document.getElementById("modal").style.display = "block";
     }
-
-    function closeModal() { 
-      document.getElementById("overlay").style.display = "none"; 
-      document.getElementById("modal").style.display = "none"; 
-    }
-
+    function closeModal() { document.getElementById("overlay").style.display = "none"; document.getElementById("modal").style.display = "none"; }
     function startDiagnosis() { 
       localStorage.removeItem("lastResult"); 
-      location.reload(); 
+      window.location.href = window.location.pathname;
     }
-
     function saveHistory(res) {
       let h = JSON.parse(localStorage.getItem("history")) || [];
       h.unshift({ time: new Date().toLocaleString(), label: res.display.map(t=>typeDetails[t].name).join("/"), data: res });
       localStorage.setItem("history", JSON.stringify(h.slice(0, 10)));
     }
-
     function toggleHistory() {
       const area = document.getElementById("historyList");
-      area.style.display = area.style.display === "block" ? "none" : "block";
+      if(area.style.display === "block") { area.style.display = "none"; return; }
       const data = JSON.parse(localStorage.getItem("history")) || [];
       area.innerHTML = data.map(i => `<div style="border-bottom:1px solid #eee; padding:5px;">${i.time}<br><b>${i.label}</b></div>`).join("");
+      area.style.display = "block";
     }
-
     function copyURL() {
-      navigator.clipboard.writeText(window.location.href).then(() => alert("URLをコピーしました！"));
+      const url = window.location.href;
+      navigator.clipboard.writeText(window.location.href).then(() => {
+        alert("診断結果のURLをコピーしました！LINEなどで送ってみてください。");
+      }).catch(err => {
+        console.error("コピー失敗: ", err);
+      });
     }
 
-    // アプリ起動時の処理（これが display の外にないと動きません）
     window.onload = () => {
       const params = new URLSearchParams(window.location.search);
       const resultParam = params.get('result');
@@ -359,9 +408,10 @@
         if(last) { 
           display(JSON.parse(last)); 
         } else { 
-          showQuestion(); // 診断開始！
+        showQuestion(); 
         }
       }
     };
+  </script>
 </body>
 </html>
