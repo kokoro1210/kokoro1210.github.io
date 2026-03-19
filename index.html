@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>和らぎ体質診断</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root { --main: #b35c5c; --bg: #fdf6f0; --accent: #f48f8f; --white: #ffffff; }
     body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg); color: #444; padding: 20px; margin-top: 40px; }
@@ -24,7 +23,7 @@
     figure { display: inline-block; text-align: center; margin: 10px; width: 160px; vertical-align: top; }
     img { width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
     figcaption { font-size: 12px; margin-top: 8px; font-weight: bold; }
-    figcaption a { color: var(--main); text-decoration: none; }
+    figcaption a { color: var(--main); text-decoration: underline; }
     #modal, #overlay { display: none; position: fixed; z-index: 2000; }
     #overlay { top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
     #modal { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; background: white; padding: 25px; border-radius: 20px; text-align: center; }
@@ -49,36 +48,37 @@
     <h2 style="font-size: 0.9rem; color: #888;">あなたの診断結果</h2>
     <div id="badgeArea"></div>
     <div id="summaryDesc" class="type-desc-box"></div>
-    
-    <div style="width: 100%; max-width: 350px; margin: 0 auto; padding: 10px;">
-        <canvas id="myRadarChart"></canvas>
-    </div>
-
-    <p style="font-size: 0.7rem; color: #aaa; text-align: center;">※バッジをタップで詳細解説</p>
-    
-    <div style="text-align: center; margin: 20px 0;">
-        <button onclick="toggleHistory()">履歴表示</button>
-        <button onclick="startDiagnosis()">最初から</button>
-    </div>
-    
+    <p style="font-size: 0.7rem; color: #aaa;">※バッジをタップで詳細解説</p>
+    <button onclick="toggleHistory()">履歴表示</button>
+    <button onclick="startDiagnosis()">最初から</button>
     <div id="historyList" style="display:none; margin-top:10px; font-size:0.8rem;"></div>
-    
     <h3 style="margin-top:30px; color:var(--main); border-bottom:1px solid #eee;">おすすめの薬膳</h3>
     <div id="yakuzennImages"></div>
-    
-    <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 10px; border: 1px dashed var(--accent); text-align: center;">
+    <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 10px; border: 1px dashed var(--accent);">
       <p style="font-size: 0.9rem; margin-bottom: 8px;">✨ 診断結果を友達にシェアする</p>
       <button class="primary" onclick="copyURL()">結果のリンクをコピーする</button>
       <p style="font-size: 0.7rem; color: #888; margin-top: 5px;">※コピーしたURLをLINEやSNSに貼り付けて送れます</p>
     </div>
-    
+    <div style="margin-top: 20px; padding: 15px; background: #fff3f3; border-radius: 10px; text-align: center;">
+      <p style="font-size: 0.9rem; font-weight: bold; color: var(--main);">アプリ改善にご協力ください！</p>
+      <p style="font-size: 0.7rem; color: #666; margin-bottom: 10px;">色々な方のご意見をもとにアップデートしていきます。</p>
+      <a href="https://forms.gle/TD2d2amp3gdbdkqUA" target="_blank" style="display: inline-block; background: var(--main); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-size: 0.9rem;">アンケートに答える</a>
+    </div>
     <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのツボ</h3>
     <div id="tsuboImages"></div>
-    
     <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのヨガ</h3>
     <div id="yogaPlaceholder"></div> 
-  </div>
+    <div id="result" style="display:none; text-align:center;">
+      <div id="res-display"></div>
+  
+      <div style="margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px;">
+        <p style="font-size:0.8rem; color:#666;">この結果を友達に送る：</p>
+        <button onclick="copyURL()" style="background:var(--accent); color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer;">URLをコピーしてシェア</button>
+      </div>
 
+      <button onclick="localStorage.removeItem('lastResult'); location.reload();" style="margin-top:20px;">最初からやり直す</button>
+    </div>
+  </div>
   <div id="overlay" onclick="closeModal()"></div>
   <div id="modal"><h3 id="mTitle"></h3><p id="mContent" style="text-align:left; font-size:0.9rem;"></p><button onclick="closeModal()">閉じる</button></div>
 
@@ -92,7 +92,7 @@
       { text: "暑がりでのぼせやすいですか？", type: "netsu", reverse: true },
       { text: "夏でも冷たい飲み物は苦手ですか？", type: "kan" },
       { text: "少し動くと疲れて息切れしますか？", type: "kikyo" },
-      { text: "あまりたくさん食べられない方ですか？", type: "kikyo" },
+      { text: "風邪を引きやすいですか？", type: "kikyo" },
       { text: "声が小さく弱々しいですか？", type: "kikyo" },
       { text: "ため息がよく出ますか？", type: "kitai" },
       { text: "胸やお腹が張る感じがありますか？", type: "kitai" },
@@ -104,11 +104,11 @@
       { text: "爪が割れやすいですか？", type: "kekkyo" },
       { text: "目の乾燥を感じますか？", type: "kekkyo" },
       { text: "あざができやすいですか？", type: "oketsu" },
-      { text: "肩こり・頭痛が多いですか？", type: "oketsu" },
-      { text: "生理不順や生理痛がありますか？（男性の方や、生理のない方はどちらでもないを選択してください）", type: "oketsu" },
+      { text: "慢性的な肩こりがありますか？", type: "oketsu" },
+      { text: "シミやクマが気になりやすいですか？", type: "oketsu" },
       { text: "むくみやすいですか？", type: "suitai" },
       { text: "下痢や軟便が多いですか？", type: "suitai" },
-      { text: "鏡で舌を見たとき、周りにギザギザした歯型がついていたり、白っぽく厚い苔があったりしますか？", type: "suitai" }
+      { text: "胃のあたりがポチャポチャと鳴ることがありますか？", type: "suitai" }
     ];
 
     // 2. 体質詳細データ
@@ -176,60 +176,52 @@
       "jitsu_netsu_oketsu": ["合谷", "血海", "肩井","曲池"], "jitsu_netsu_suitai": ["水分", "豊隆", "曲池"]
     };
 
-    // フォルダ内のファイル名に合わせたID（完全修正版）
     const yogaNames = {
       "kyo_kan_kikyo": ["sun_salutation", "mountain_pose", "tree_pose"],
       "kyo_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
-      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_dpwn_pose"], // cool_dpwn_pose に修正
+      "kyo_kan_kigyaku": ["plow_pose", "rabbit_pose", "cooldown_pose"],
       "kyo_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
-      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // shoulder_blade_moe, pelvic_move に修正
-      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"], // ankle_move に修正
+      "kyo_kan_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "kyo_kan_suitai": ["tree_pose", "balance_pose", "ankle_pose"],
       "kyo_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
-      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening"], // chest_opening に修正
-      "kyo_netsu_kigyaku": ["plow_pose", "cool_dpwn_pose", "meditation"], // cool_dpwn_pose に修正
+      "kyo_netsu_kitai": ["fish_pose", "camel_pose", "chest_open_pose"],
+      "kyo_netsu_kigyaku": ["plow_pose", "cooldown_pose", "meditation"],
       "kyo_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
-      "kyo_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
-      "kyo_netsu_suitai": ["tree_pose", "ankle_move", "cool_dpwn_pose"], // 修正
+      "kyo_netsu_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "kyo_netsu_suitai": ["tree_pose", "ankle_pose", "cooldown_pose"],
       "jitsu_kan_kikyo": ["sun_salutation", "warrior_pose", "mountain_pose"],
       "jitsu_kan_kitai": ["twist_pose", "cat_pose", "camel_pose"],
-      "jitsu_kan_kigyaku": ["plow_pose", "rabbit_pose", "cool_dpwn_pose"], // 修正
+      "jitsu_kan_kigyaku": ["plow_pose", "rabbit_pose", "cooldown_pose"],
       "jitsu_kan_kekkyo": ["mountain_pose", "triangle_pose", "balance_pose"],
-      "jitsu_kan_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
-      "jitsu_kan_suitai": ["tree_pose", "balance_pose", "ankle_move"], // 修正
+      "jitsu_kan_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "jitsu_kan_suitai": ["tree_pose", "balance_pose", "ankle_pose"],
       "jitsu_netsu_kikyo": ["moon_pose", "relax_pose", "breathing"],
-      "jitsu_netsu_kitai": ["fish_pose", "camel_pose", "chest_opening"], // 修正
-      "jitsu_netsu_kigyaku": ["plow_pose", "cool_dpwn_pose", "meditation"], // 修正
+      "jitsu_netsu_kitai": ["fish_pose", "camel_pose", "chest_open_pose"],
+      "jitsu_netsu_kigyaku": ["plow_pose", "cooldown_pose", "meditation"],
       "jitsu_netsu_kekkyo": ["moon_pose", "balance_pose", "relax_pose"],
-      "jitsu_netsu_oketsu": ["twist_pose", "shoulder_blade_moe", "pelvic_move"], // 修正
-      "jitsu_netsu_suitai": ["tree_pose", "ankle_move", "cool_dpwn_pose"] // 修正
+      "jitsu_netsu_oketsu": ["twist_pose", "shoulder_blade_pose", "pelvis_pose"],
+      "jitsu_netsu_suitai": ["tree_pose", "ankle_pose", "cooldown_pose"]
     };
 
-    // フォルダ内のファイル名とIDをマッピング（完全修正版）
     const yogaDisplayNames = {
       "sun_salutation": "太陽礼拝", "mountain_pose": "山のポーズ", "tree_pose": "木のポーズ",
       "twist_pose": "ねじりのポーズ", "cat_pose": "猫のポーズ", "camel_pose": "ラクダのポーズ",
-      "plow_pose": "鋤のポーズ", "rabbit_pose": "うさぎのポーズ", 
-      "cool_dpwn_pose": "クールダウンのポーズ", // ファイル名 cool_dpwn_pose.jpg に対応
-      "triangle_pose": "三角のポーズ", "balance_pose": "バランスポーズ", 
-      "shoulder_blade_moe": "肩甲骨を動かすポーズ", // ファイル名 shoulder_blade_moe.jpg に対応
-      "pelvic_move": "骨盤を動かすポーズ", // ファイル名 pelvic_move.jpg に対応
-      "standing_tree_pose":"立木のポーズ", 
-      "ankle_move": "足首を動かすポーズ", // ファイル名 ankle_move.jpg に対応
+      "plow_pose": "鋤のポーズ", "rabbit_pose": "うさぎのポーズ", "cooldown_pose": "クールダウンのポーズ",
+      "triangle_pose": "三角のポーズ", "balance_pose": "バランスポーズ", "shoulder_blade_pose": "肩甲骨を動かすポーズ",
+      "pelvis_pose": "骨盤を動かすポーズ", "standing_tree_pose":"立木のポーズ", "ankle_pose": "足首を動かすポーズ",
       "moon_pose": "月のポーズ", "relax_pose": "リラックスポーズ", "breathing": "呼吸法",
-      "fish_pose": "魚のポーズ", 
-      "chest_opening": "胸を開くポーズ", // ファイル名 chest_opening.jpg に対応
-      "meditation": "瞑想", "warrior_pose": "戦士のポーズ"
+      "fish_pose": "魚のポーズ", "chest_open_pose": "胸を開くポーズ", "meditation": "瞑想", "warrior_pose": "戦士のポーズ"
     };
 
     let points = { kikyo: 0, kitai: 0, kigyaku: 0, kekkyo: 0, oketsu: 0, suitai: 0, kyo: 0, jitsu: 0, kan: 0, netsu: 0 };
     let current = 0;
     let history_scores = []; // スコアの履歴を保存する箱
-    let myChartInst = null; // チャートインスタンス保存用
 
     // 5. アプリケーションロジック
     function showQuestion() {
       const isResultScreen = document.getElementById("result").style.display === "block";
       document.getElementById("back-btn").style.display = (current > 0 || isResultScreen) ? "inline-block" : "none";
+      document.getElementById("back-btn").style.display = current > 0 ? "inline-block" : "none";
       const progress = (current / questions.length) * 100;
       document.getElementById("progressBar").style.width = progress + "%";
       const diagDiv = document.getElementById("diagnosis");
@@ -243,6 +235,7 @@
       
       const optDiv = document.createElement("div");
       optDiv.className = "options";
+      // ここが5段階評価の部分です
       [
         {l:"とても当てはまる", v:2},
         {l:"やや当てはまる", v:1},
@@ -265,8 +258,10 @@
     }
     function goBack() {
       if (current > 0) {
+        // もし今、結果画面を見ていたら、結果画面を隠して診断画面を出す
         document.getElementById("result").style.display = "none";
         document.getElementById("diagnosis").style.display = "block";
+
         current--;
         points = history_scores.pop(); // 前のスコアを復元
         showQuestion();
@@ -284,6 +279,8 @@
       // URLの末尾に結果をくっつける
       const newURL = window.location.origin + window.location.pathname + "?result=" + res.key;
       window.history.pushState({}, '', newURL);
+      localStorage.setItem("lastResult", JSON.stringify(res));
+      saveHistory(res);
       display(res);
     }
 
@@ -298,55 +295,6 @@
       });
       document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
       
-      // --- レーダーチャート描画ロジック ---
-      const ctx = document.getElementById('myRadarChart').getContext('2d');
-
-      // スコアの集計
-      const ki_bad = points.kikyo + points.kitai + points.kigyaku;
-      const ketsu_bad = points.kekkyo + points.oketsu;
-      const sui_bad = points.suitai;
-
-      // 修正：厳しめ判定（割り算をなくして、少しの不調でもグラフを凹ませる）
-      const chartData = [
-          Math.max(0, 10 - ki_bad),           // 気：不調スコアをそのまま引く
-          Math.max(0, 10 - ketsu_bad),        // 血：不調スコアをそのまま引く
-          Math.max(0, 10 - (sui_bad * 2))     // 水：質問が少ないので2倍の重みで引く
-      ];
-      // 前回のグラフがあれば破棄
-      if (myChartInst) {
-          myChartInst.destroy();
-      }
-
-      myChartInst = new Chart(ctx, {
-          type: 'radar',
-          data: {
-              labels: ['気 (エネルギー)', '血 (めぐり)', '水 (水分代謝)'],
-              datasets: [{
-                  label: 'あなたの体質バランス',
-                  data: chartData,
-                  backgroundColor: 'rgba(179, 92, 92, 0.4)',
-                  borderColor: '#b35c5c',
-                  borderWidth: 2,
-                  pointBackgroundColor: '#b35c5c'
-              }]
-          },
-          options: {
-              layout: { padding: 10 }, // 枠内に収まるようパディング追加
-              scales: {
-                  r: {
-                      min: 0,
-                      max: 10,
-                      ticks: { display: false },
-                      pointLabels: { font: { size: 12, weight: 'bold' } }
-                  }
-              },
-              plugins: {
-                  legend: { display: false }
-              }
-          }
-      });
-      // ------------------------------------
-
       const key = res.key;
       // 薬膳表示
       const yArea = document.getElementById("yakuzennImages"); yArea.innerHTML = "";
@@ -362,7 +310,6 @@
       // ヨガ表示
       const pArea = document.getElementById("yogaPlaceholder"); pArea.innerHTML = "";
       (yogaNames[key] || []).forEach(id => {
-        // 画像のファイル名 (${id}.jpg) と リンク先のファイル名 (${id}.html) を一致させる
         pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
       });
     }
