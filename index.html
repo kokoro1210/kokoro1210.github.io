@@ -10,534 +10,583 @@
     body { font-family: 'Noto Sans JP', sans-serif; background-color: var(--bg); color: #444; padding: 20px; margin-top: 40px; }
     #progressBarContainer { width: 100%; background: #eee; height: 8px; position: fixed; top: 0; left: 0; z-index: 1000; }
     #progressBar { width: 0%; height: 100%; background: var(--accent); transition: 0.5s; }
-    h1 { color: var(--main); text-align: center; font-size: 1.5rem; }
+    h1 { color: var(--main); text-align: center; font-size: 1.5rem; margin-bottom: 20px;}
     .card { background: var(--white); border-radius: 20px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); margin-bottom: 20px; }
     .question-text { font-weight: bold; font-size: 1.1rem; margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
     .options { display: flex; flex-direction: column; gap: 10px; }
     .options input { display: none; }
-    .options label { background: #fffafa; border: 1px solid #f5a3a3; padding: 12px; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; }
-    .type-badge { display: inline-block; background: var(--main); color: white; padding: 6px 16px; border-radius: 20px; font-size: 1.1rem; margin: 5px; cursor: pointer; }
-    .type-desc-box { background: #fff3f3; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 4px solid var(--accent); font-size: 0.9rem; }
-    button { background: #f7c9c9; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; color: var(--main); font-weight: bold; margin: 5px; }
-    button:hover { background: var(--accent); color: white; }
-    figure { display: inline-block; text-align: center; margin: 10px; width: 160px; vertical-align: top; }
-    img { width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-    figcaption { font-size: 12px; margin-top: 8px; font-weight: bold; }
-    figcaption a { color: var(--main); text-decoration: underline; }
-    #modal, #overlay { display: none; position: fixed; z-index: 2000; }
-    #overlay { top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-    #modal { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 85%; max-width: 400px; background: white; padding: 25px; border-radius: 20px; text-align: center; }
-    /* PCでのみホバー（色変化）を有効にする */
+    .options label { background: #fffafa; border: 1px solid #f5a3a3; padding: 15px; border-radius: 12px; cursor: pointer; text-align: center; transition: 0.2s; font-weight: bold; -webkit-tap-highlight-color: transparent;}
+    
+    /* 選択肢が選ばれたときのスタイル */
+    .options label.selected { background: var(--main); color: white; border-color: var(--main); box-shadow: inset 0 3px 5px rgba(0,0,0,0.2); }
+    /* PCでのみホバーを有効にする */
     @media (hover: hover) {
-    .options label:hover { background: var(--accent); color: white; }
+      .options label:hover { background: var(--accent); color: white; border-color: var(--accent); }
     }
-    /* タップした瞬間だけ色を変える */
-    .options label:active { background: var(--accent); color: white; }
-    /* スマホでのタップハイライトを消す（お好みで） */
-    .options label { -webkit-tap-highlight-color: transparent; }
+    .options label:active { background: var(--main); color: white; }
+
+    /* アコーディオン (details/summary) のスタイル */
+    details { background: var(--white); border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #ffe6e6; overflow: hidden;}
+    summary { padding: 18px 15px; font-weight: bold; font-size: 1.05rem; color: var(--main); cursor: pointer; list-style: none; position: relative; background: #fffafa; outline: none; -webkit-tap-highlight-color: transparent; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: '▼'; position: absolute; right: 15px; font-size: 0.9rem; color: var(--accent); transition: transform 0.3s; }
+    details[open] summary::after { transform: rotate(180deg); }
+    details[open] summary { border-bottom: 1px dashed #ffe6e6; }
+    .details-content { padding: 15px; background: #fff; }
+
+    button.action-btn { width: 100%; padding: 15px; border: none; border-radius: 30px; font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px; transition: 0.2s; }
+    button.primary-btn { background: var(--main); color: white; box-shadow: 0 4px 10px rgba(179, 92, 92, 0.3); }
+    button.secondary-btn { background: #fff; color: #666; border: 2px solid #ddd; }
+    button.outline-btn { background: var(--bg); color: var(--main); border: 2px solid var(--main); }
+
+    figure { display: inline-block; text-align: center; margin: 5px; width: 45%; vertical-align: top; box-sizing: border-box; cursor: pointer;}
+    img { width: 100%; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    figcaption { font-size: 0.8rem; margin-top: 8px; font-weight: bold; color: var(--main); text-decoration: underline; }
+
+    /* レシピ用モーダル */
+    #recipeModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+    .modal-box { background: white; width: 100%; max-width: 500px; max-height: 85%; border-radius: 15px; overflow-y: auto; position: relative; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-close { position: absolute; top: 15px; right: 15px; background: #eee; border: none; border-radius: 50%; width: 35px; height: 35px; font-size: 1.2rem; font-weight: bold; cursor: pointer; color: #555;}
+    
+    /* 体質解説カード */
+    .type-desc-card { background: #fff; border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .type-desc-card h4 { margin: 0 0 5px 0; color: var(--main); font-size: 1.1rem;}
+    .type-desc-card p.short { margin: 0; font-size: 0.9rem; font-weight: bold; color: #444; }
+    .type-desc-card p.long { margin: 8px 0 0 0; font-size: 0.85rem; color: #666; line-height: 1.5; }
   </style>
 </head>
 <body>
   <div id="progressBarContainer"><div id="progressBar"></div></div>
-  <h1>和らぎ体質診断</h1>
-  <div id="diagnosis"></div>
-  <div style="text-align: center; margin-top: 10px;">
-   <button id="back-btn" style="display:none; background:none; border:none; color:#888; cursor:pointer;" onclick="goBack()">← 前に戻る</button>
-  </div>
-  <div id="result" class="card" style="display:none">
-    <h2 style="font-size: 0.9rem; color: #888;">あなたの診断結果</h2>
-    <div id="badgeArea"></div>
-    <div id="summaryDesc" class="type-desc-box"></div>
-    <p style="font-size: 0.7rem; color: #aaa;">※バッジをタップで詳細解説</p>
-    <button onclick="toggleHistory()">履歴表示</button>
-    <button onclick="startDiagnosis()">最初から</button>
-    <div id="historyList" style="display:none; margin-top:10px; font-size:0.8rem;"></div>
-    <div style="margin-top:20px; padding:15px; background:#fff8e7; border-radius:10px; border:2px solid #fbdc9a;">
-      <h3 style="margin:0 0 10px 0; color:#d98d00; font-size:1.1rem;">🏪 コンビニ＆スーパーお買い物リスト</h3>
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">自炊が難しい日は、これらを選ぶだけでも体質改善に繋がりますよ。</p>
-      <div id="convenienceFoods"></div>
-    </div>
-    <div style="margin-top:20px; padding:15px; background:#fff5ee; border-radius:10px; border:2px solid #ffaa77;">
-      <h3 style="margin:0 0 10px 0; color:#d2691e; font-size:1.1rem;">🍽️ 今日のご飯、これにしない？</h3>
-      <p style="font-size:0.8rem; color:#666; margin-bottom:10px;">しっかり食べたい時におすすめ！あなたの体質にぴったりの「隠れ薬膳」ガッツリメニューです。</p>
-      <div id="heartyMenu" style="font-weight:bold; color:#e65100; font-size:1.1rem; text-align:center; padding:10px 0;"></div>
-    </div>
-    <h3 style="margin-top:30px; color:var(--main); border-bottom:1px solid #eee;">おすすめの薬膳</h3>
-    <div id="yakuzennImages"></div>
-    <div style="margin-top: 20px; padding: 15px; background: #fff; border-radius: 10px; border: 1px dashed var(--accent);">
-      <p style="font-size: 0.9rem; margin-bottom: 8px;">✨ 診断結果を友達にシェアする</p>
-      <button class="primary" onclick="copyURL()">結果のリンクをコピーする</button>
-      <p style="font-size: 0.7rem; color: #888; margin-top: 5px;">※コピーしたURLをLINEやSNSに貼り付けて送れます</p>
-    </div>
-    <div style="margin-top: 20px; padding: 15px; background: #fff3f3; border-radius: 10px; text-align: center;">
-      <p style="font-size: 0.9rem; font-weight: bold; color: var(--main);">アプリ改善にご協力ください！</p>
-      <p style="font-size: 0.7rem; color: #666; margin-bottom: 10px;">色々な方のご意見をもとにアップデートしていきます。</p>
-      <a href="https://forms.gle/TD2d2amp3gdbdkqUA" target="_blank" style="display: inline-block; background: var(--main); color: white; padding: 10px 20px; border-radius: 20px; text-decoration: none; font-size: 0.9rem;">アンケートに答える</a>
-    </div>
-    <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのツボ</h3>
-    <div id="tsuboImages"></div>
-    <h3 style="margin-top:20px; color:var(--main); border-bottom:1px solid #eee;">おすすめのヨガ</h3>
-    <div id="yogaPlaceholder"></div> 
-    <div id="result" style="display:none; text-align:center;">
-      <div id="res-display"></div>
   
-      <div style="margin-top:20px; padding:15px; background:#f9f9f9; border-radius:10px;">
-        <p style="font-size:0.8rem; color:#666;">この結果を友達に送る：</p>
-        <button onclick="copyURL()" style="background:var(--accent); color:white; border:none; padding:10px 20px; border-radius:20px; cursor:pointer;">URLをコピーしてシェア</button>
+  <div id="diagnosisArea">
+    <h1>和らぎ体質診断</h1>
+    <div id="diagnosis"></div>
+    <div style="text-align: center; margin-top: 20px; min-height: 40px;">
+      <button id="back-btn" style="display:none; background:none; border:none; color:#888; font-size:1rem; cursor:pointer; padding:10px;" onclick="goBack()">← 1つ前の質問に戻る</button>
+    </div>
+  </div>
+
+  <div id="resultArea" style="display:none">
+    <h2 style="font-size: 1.2rem; color: var(--main); text-align: center; margin-bottom: 20px;">🌿 あなたの体質診断結果</h2>
+    
+    <!-- メイン結果画像エリア -->
+    <div id="mainResultImage" style="text-align: center; margin-bottom: 20px;"></div>
+
+    <!-- 1. 証の説明エリア -->
+    <div id="badgeArea" style="margin-bottom: 25px;"></div>
+    
+    <p style="font-size:0.9rem; color:#666; margin-bottom:15px; text-align:center;">気になる項目をタップして開いてください。</p>
+
+    <!-- お買い物リスト (開閉式) -->
+    <details>
+      <summary>🏪 コンビニ＆スーパーお買い物リスト</summary>
+      <div class="details-content">
+        <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">自炊が難しい日は、これらを選ぶだけでも体質改善に繋がりますよ。</p>
+        <div id="convenienceFoods"></div>
+      </div>
+    </details>
+
+    <!-- 今日のご飯 (開閉式) -->
+    <details>
+      <summary>🍽️ 今日のガッツリ隠れ薬膳メニュー</summary>
+      <div class="details-content">
+        <p style="font-size:0.85rem; color:#666; margin-bottom:15px;">しっかり食べたい時におすすめ！体質にぴったりのメニューです。</p>
+        <div id="heartyMenu"></div>
+      </div>
+    </details>
+
+    <!-- 薬膳 (開閉式) -->
+    <details>
+      <summary>🍲 おすすめの薬膳レシピ</summary>
+      <div class="details-content" id="yakuzennImages"></div>
+    </details>
+
+    <!-- ツボ (開閉式) -->
+    <details>
+      <summary>👆 押してみよう！おすすめのツボ</summary>
+      <div class="details-content" id="tsuboImages"></div>
+    </details>
+
+    <!-- ヨガ (開閉式) -->
+    <details>
+      <summary>🧘‍♀️ 巡りを良くするおすすめヨガ</summary>
+      <div class="details-content" id="yogaPlaceholder"></div>
+    </details>
+
+    <!-- アクションボタン群 (一番下) -->
+    <div style="margin-top: 35px;">
+      <button class="action-btn primary-btn" onclick="copyURL()">🔗 結果のリンクをコピーしてシェア</button>
+      <button class="action-btn secondary-btn" onclick="toggleHistory()">🕒 過去の履歴を見る</button>
+      <div id="historyList" style="display:none; margin-bottom:15px; font-size:0.85rem; background:#fff; padding:15px; border-radius:12px; max-height:200px; overflow-y:auto; border:1px solid #eee;"></div>
+      <button class="action-btn outline-btn" onclick="startDiagnosis()">🔄 最初からやり直す</button>
+    </div>
+
+    <!-- アンケート -->
+    <div style="margin-top: 25px; padding: 20px; background: #fff3f3; border-radius: 12px; text-align: center;">
+      <p style="font-size: 1rem; font-weight: bold; color: var(--main); margin-top:0;">アプリ改善にご協力ください！</p>
+      <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">皆さまのご意見をもとにアップデートしていきます。</p>
+      <a href="https://forms.gle/TD2d2amp3gdbdkqUA" target="_blank" style="display: inline-block; background: var(--main); color: white; padding: 12px 25px; border-radius: 30px; text-decoration: none; font-size: 0.9rem; font-weight:bold;">アンケートに答える</a>
+    </div>
+  </div>
+
+  <!-- 💡 詳細表示エリア（薬膳・ツボ・ヨガ用） -->
+  <div id="detailArea" style="display:none;">
+    <div style="text-align: left; margin-bottom: 20px;">
+      <button class="action-btn outline-btn" style="width: auto; padding: 10px 20px;" onclick="backToResult()">← 診断結果に戻る</button>
+    </div>
+    <h2 id="detailCategory" style="font-size: 1rem; color: #888; text-align: center; margin-bottom: 5px;"></h2>
+    <h3 id="detailTitle" style="font-size: 1.5rem; color: var(--main); text-align: center; margin-bottom: 20px;"></h3>
+    <div style="text-align: center; margin-bottom: 20px;">
+      <img id="detailImage" src="" alt="詳細画像" style="width:100%; max-width:400px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);" onerror="this.style.display='none'">
+    </div>
+    <div style="background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); text-align: left;">
+      <p style="color: #666; font-size: 0.95rem; line-height: 1.6;">※こちらの詳細コンテンツは現在準備中です。画像を参考に実践してみてください！</p>
+    </div>
+  </div>
+
+  <!-- レシピモーダル -->
+  <div id="recipeModal">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeRecipeModal()">✕</button>
+      <h2 id="m_name" style="color:#e65100; margin-top:0; font-size:1.2rem; margin-right:20px;"></h2>
+      
+      <!-- レシピ画像エリア -->
+      <div style="text-align: center; margin: 15px 0;">
+        <img id="m_image" src="" alt="レシピ画像" style="width:100%; max-width:300px; border-radius:10px; display:none; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" onerror="this.style.display='none'">
       </div>
 
-      <button onclick="localStorage.removeItem('lastResult'); location.reload();" style="margin-top:20px;">最初からやり直す</button>
+      <p id="m_desc" style="font-size:0.9rem; color:#666; line-height:1.5; background:#fff5ee; padding:12px; border-radius:8px;"></p>
+      <h4 style="border-left:4px solid #ff9800; padding-left:10px; margin:20px 0 10px;">🛒 材料</h4>
+      <p id="m_ingredients" style="font-size:0.9rem; line-height:1.6; padding-left:5px;"></p>
+      <h4 style="border-left:4px solid #ff9800; padding-left:10px; margin:20px 0 10px;">🍳 作り方</h4>
+      <p id="m_steps" style="font-size:0.9rem; line-height:1.6; padding-left:5px;"></p>
+      <button onclick="closeRecipeModal()" class="action-btn primary-btn" style="margin-top:15px; background:#ff9800;">閉じる</button>
     </div>
   </div>
-  <div id="overlay" onclick="closeModal()"></div>
-  <div id="modal"><h3 id="mTitle"></h3><p id="mContent" style="text-align:left; font-size:0.9rem;"></p><button onclick="closeModal()">閉じる</button></div>
 
   <script>
     const pdfFoodsData = {
-     // ===== 気虚 (エネルギー不足) =====
       "kyo_kan_kikyo": [
         { cat: "🍖 肉類", foods: "鶏肉、牛肉、羊肉、豚肉、卵", effect: "いずれも温性で気を補い、体を温めて虚寒・気虚体質の改善に役立つ" },
         { cat: "🐟 魚介類", foods: "エビ、うなぎ、カツオ、イワシ、サンマ", effect: "温性で気を補い体を温める食材が多く、虚寒・気虚の体質改善に有用" },
-        { cat: "🥗 野菜類", foods: "かぼちゃ、キャベツ、じゃがいも、長ネギ、山芋", effect: "胃腸を温めつつ気を補う作用があり、虚寒・気虚体質に適する" },
-        { cat: "🍎 果物類", foods: "ブドウ、モモ、イチジク、りんご、みかん", effect: "消化吸収しやすい甘味の果物でエネルギー補給に適し、気虚体質の滋養に役立つ" },
-        { cat: "🌿 香辛料・ハーブ", foods: "生姜、ニンニク、山椒、シナモン、胡椒", effect: "体を内側から温め胃腸の働きを高めるので、寒がりで気虚な体質に適する" },
-        { cat: "🍚 穀類", foods: "白米、もち米、もち麦、玄米、オートミール", effect: "炭水化物を補給し胃腸に優しい主食で、気力とエネルギーを補う基本食材" },
-        { cat: "🥜 豆類・種実類", foods: "大豆、黒豆、栗、クルミ、松の実", effect: "気を補う滋養強壮効果があり、虚弱な気虚体質の体力改善に役立つ" },
-        { cat: "🍄 キノコ類", foods: "椎茸、舞茸、しめじ、えのき、エリンギ", effect: "胃腸を助けて気を補う働きがあり、虚証で気虚な体質の滋養に有用" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、ひじき、もずく、焼きのり", effect: "海藻は身体を冷やしがちだがミネラル豊富で気血の生成を助けるため、温かい料理に少量用いて滋養に役立てる" }
+        { cat: "🥗 野菜類", foods: "かぼちゃ、キャベツ、じゃがいも、長ネギ、山芋", effect: "胃腸を温めつつ気を補う作用があり、虚寒・気虚体質に適する" }
       ],
       "kyo_netsu_kikyo": [
         { cat: "🍖 肉類", foods: "豚肉、カモ肉、牛肉、鶏肉、卵", effect: "栄養豊富で気を補うが過剰に体を熱させない。鴨肉や卵は潤いを与えつつ補気する" },
         { cat: "🐟 魚介類", foods: "牡蠣、ホタテ、鯛、イカ、タコ", effect: "体を潤しながら良質なたんぱく質を補給でき、暑がり気味でも安心して気力を補える" },
-        { cat: "🥗 野菜類", foods: "山芋、レンコン、ほうれん草、ニンジン、じゃがいも", effect: "胃腸に優しく栄養を補給し、潤いを与え、虚熱・気虚による乾燥を和らげる" },
-        { cat: "🍎 果物類", foods: "梨、ビワ、ブドウ、イチジク、オレンジ", effect: "瑞々しく甘い果物で体に潤いと栄養を与え、熱を帯びた虚証の体でも負担なく気を補える" },
-        { cat: "🌿 香辛料・ハーブ", foods: "ジャスミン茶、菊花、ペパーミント、ラベンダー", effect: "香り高く鎮静作用のあるハーブティーで、気の滞りを解消しつつ余分な熱を冷ます" },
-        { cat: "🍚 穀類", foods: "そば、押し麦、玄米、とうもろこし、オートミール", effect: "清熱・滋養作用で体内の余分な熱をこもらせず消化を助け、穏やかに気を巡らせる" },
-        { cat: "🥜 豆類・種実類", foods: "豆腐、豆乳、緑豆、白いんげん豆、百合根", effect: "低カロリーで胃腸への負担が少なく、熱を冷ましつつ気を補う" },
-        { cat: "🍄 キノコ類", foods: "しめじ、えのき、なめこ、白きくらげ、平茸", effect: "体内の熱を冷まし炎症を鎮める効果があり、熱証を伴う気虚体質の滋養に適する" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、もずく、寒天、あおさ", effect: "滋養しながら体内の余分な熱を冷ますのに役立つ" }
+        { cat: "🥗 野菜類", foods: "山芋、レンコン、ほうれん草、ニンジン、じゃがいも", effect: "胃腸に優しく栄養を補給し、潤いを与え、虚熱・気虚による乾燥を和らげる" }
       ],
       "jitsu_kan_kikyo": [
         { cat: "🍖 肉類", foods: "牛肉、ラム肉、鴨肉、豚肉、卵", effect: "消化によく温性のタンパク源。体力のある人でも冷えで低下した気を補うのに適する" },
         { cat: "🐟 魚介類", foods: "鯛、ヒラメ、タラ、イワシ、アジ", effect: "淡白で消化の良い魚介類を温かい煮汁で調理し、実寒気虚の胃腸に優しく気逆を防ぐ" },
-        { cat: "🥗 野菜類", foods: "大根、かぶ、ニンニク、ニラ、玉ねぎ", effect: "体を芯から温め強く発散する香味野菜で、滞った「気」の巡りを改善" },
-        { cat: "🍎 果物類", foods: "ミカン、金柑、ゆず皮、桃、ライチ", effect: "香りや甘みで気分を和らげ、体を適度に潤しつつ寒滞した気の巡りを促す" },
-        { cat: "🌿 香辛料・ハーブ", foods: "唐辛子、生姜、胡椒、ニンニク、カルダモン", effect: "強い温め作用で胃腸を刺激し、滞った気を強力に発散させ寒滞を解消" },
-        { cat: "🍚 穀類", foods: "そば、もち麦、雑穀米、ライ麦パン、黒米", effect: "温かい調理法で摂ることで気滞を防ぎつつエネルギー源となる" },
-        { cat: "🥜 豆類・種実類", foods: "黒豆、納豆、ひよこ豆、栗、松の実", effect: "補腎作用で冷えを改善し、気滞による不調を和らげる食材" },
-        { cat: "🍄 キノコ類", foods: "干し椎茸、舞茸、松茸、エリンギ、マッシュルーム", effect: "濃厚な風味で気を動かし体を温めて、寒滞した気の巡りを改善" },
-        { cat: "🌊 海藻類", foods: "ヒジキ、わかめ、昆布、海藻、もずく", effect: "生姜や酢と合わせて調理することで冷やしすぎずに水分代謝を促し血行を改善する" }
+        { cat: "🥗 野菜類", foods: "大根、かぶ、ニンニク、ニラ、玉ねぎ", effect: "体を芯から温め強く発散する香味野菜で、滞った「気」の巡りを改善" }
       ],
       "jitsu_netsu_kikyo": [
         { cat: "🍖 肉類", foods: "鴨肉、豚肉(ヒレ)、鶏ささみ、鶏むね肉、牛赤身", effect: "脂肪が少なく体を熱しにくい部位を選び、タンパク質補給しながら気滞の悪化を防ぐ" },
         { cat: "🐟 魚介類", foods: "あさり、しじみ、ムール貝、牡蠣、ホタテ", effect: "清熱作用がありミネラル豊富な貝類を中心に、実熱の気滞による不快症状を緩和" },
-        { cat: "🥗 野菜類", foods: "ニガウリ、セロリ、きゅうり、白菜、水菜", effect: "苦味や清涼感のある野菜で余分な熱を冷まし、実証の気滞による熱感や怒りを抑える" },
-        { cat: "🍎 果物類", foods: "スイカ、メロン、柿、グレープフルーツ、レモン", effect: "清熱作用のある果物で体内の余分な熱を冷まし、実熱の滞によるのぼせやイライラを和らげる" },
-        { cat: "🌿 香辛料・ハーブ", foods: "緑茶、ミント、ジャスミン、ローズヒップ、カモミール", effect: "清涼・鎮静効果のあるハーブで熱証の気滞による炎症を鎮めて気滞による不快症状を緩和" },
-        { cat: "🍚 穀類", foods: "そば、大麦、玄米、とうもろこし、ライ麦", effect: "涼性・平性の穀類を中心にとり、余計な熱を生じさせずに気の巡りを促す" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、はとむぎ、白いんげん豆、百合根、黒ゴマ", effect: "体内の熱を冷ましつつ潤いを与える食材で、実熱・気滞による炎症を鎮める" },
-        { cat: "🍄 キノコ類", foods: "椎茸、しめじ、えのき、黒キクラゲ、ヤマブシタケ", effect: "低カロリーで繊維質が多く、余熱を生むことなく気を巡らせる" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、あおさ、海苔、寒天", effect: "余分な熱を取り除き、炎症を鎮めて気滞による不快症状を緩和" }
+        { cat: "🥗 野菜類", foods: "ニガウリ、セロリ、きゅうり、白菜、水菜", effect: "苦味や清涼感のある野菜で余分な熱を冷まし、実証の気滞による熱感や怒りを抑える" }
       ],
-
-      // ===== 気逆 (のぼせ・イライラ) =====
       "kyo_kan_kigyaku": [
         { cat: "🍖 肉類", foods: "鶏肉、ラム肉、牛赤身、豚ヒレ、卵白", effect: "消化に良く温性のタンパク源を温かいスープなどで摂り、虚寒の胃腸を暖めて気逆症状を和らげる" },
         { cat: "🐟 魚介類", foods: "鯛、ヒラメ、タラ、イワシ、アジ", effect: "淡白で胃に優しい白身魚を生姜入りの煮汁で調理し、虚寒気逆の嘔気やゲップを抑える" },
-        { cat: "🥗 野菜類", foods: "大根、カブ、ショウガ、長ネギ、山芋", effect: "胃を温めて気を下ろす働きがあり、虚寒の気逆によるしゃっくりや嘔気を鎮める" },
-        { cat: "🍎 果物類", foods: "梅干し、ナツメ、レモン、ユズ、干し柿", effect: "強い酸味で横隔膜を刺激ししゃっくりを止め、胃を温め補う" },
-        { cat: "🌿 香辛料・ハーブ", foods: "生姜、クローブ、シナモン、陳皮、山椒", effect: "胃を温め下降させる作用が強く、冷えで逆上した気を鎮めるのに役立つ" },
-        { cat: "🍚 穀類", foods: "白粥、もち米粥、おじや、生姜湯、葛湯", effect: "温かく消化の良い流動食を摂って胃を温め、虚寒の気逆症状を和らげる" },
-        { cat: "🥜 豆類・種実類", foods: "味噌汁、卵豆腐、温豆乳、黒砂糖、松の実", effect: "身体を温めつつ栄養補給できる食品を選び、虚寒による気の逆上を防ぐ" },
-        { cat: "🍄 キノコ類", foods: "干し椎茸、生姜の甘酢漬け、なめこ、生木耳、マッシュルーム", effect: "消化に良く胃を温める調理法で摂ることで、虚寒気逆の症状を緩和する" },
-        { cat: "🌊 海藻類", foods: "昆布、生姜葛湯、焼き海苔、わかめ", effect: "海藻自体は冷やすが、生姜や葛と合わせ温めて摂れば気逆の症状を鎮め喉の通りを良くする" }
+        { cat: "🥗 野菜類", foods: "大根、カブ、ショウガ、長ネギ、山芋", effect: "胃を温めて気を下ろす働きがあり、虚寒の気逆によるしゃっくりや嘔気を鎮める" }
       ],
       "kyo_netsu_kigyaku": [
         { cat: "🍖 肉類", foods: "鴨肉、豚肉、豆腐、牛乳、卵", effect: "潤いを与えながら栄養補給でき、虚熱に伴う気逆症状を和らげる" },
         { cat: "🐟 魚介類", foods: "牡蠣、ハマグリ、シジミ、ホタテ、ナマコ", effect: "滋陰作用があり、虚熱による気逆症状(ほてりや乾いた咳)を緩和" },
-        { cat: "🥗 野菜類", foods: "レンコン、セロリ、白菜、チンゲンサイ、冬瓜", effect: "清熱作用で気逆を抑え、虚熱ののぼせや咳きを鎮める" },
-        { cat: "🍎 果物類", foods: "梨、ビワ、ブドウ、イチジク、オレンジ", effect: "潤肺・清熱作用で乾燥を潤し虚熱の気逆を軽減する" },
-        { cat: "🌿 香辛料・ハーブ", foods: "菊花、桑葉茶、ハチミツ、枇杷葉茶、カモミール", effect: "清熱と滋養作用で気逆による不眠やイライラを鎮める" },
-        { cat: "🍚 穀類", foods: "麦茶、はと麦粥、コーンスターチ葛湯、玄米リゾット、春雨", effect: "涼性の穀類を使い余分な熱をこもらせずに消化吸収を促す" },
-        { cat: "🥜 豆類・種実類", foods: "豆乳、白ごま、ゆり根、緑豆もやし、アーモンドミルク", effect: "潤しつつ体力を補う豆類で、虚熱の気逆(のぼせ)を和らげるのに役立つ" },
-        { cat: "🍄 キノコ類", foods: "白きくらげ、えのき茸、生椎茸、ハナビラタケ、舞茸", effect: "滋陰作用があり、虚熱・気逆で乾いた喉や皮膚を潤す" },
-        { cat: "🌊 海藻類", foods: "昆布、寒天、ところてん、海藻サラダ、もずく", effect: "冷性の海藻類は余分な熱を冷まし、虚熱の気逆による炎症や火照りを鎮めるのに有効" }
+        { cat: "🥗 野菜類", foods: "レンコン、セロリ、白菜、チンゲンサイ、冬瓜", effect: "清熱作用で気逆を抑え、虚熱ののぼせや咳きを鎮める" }
       ],
       "jitsu_kan_kigyaku": [
         { cat: "🍖 肉類", foods: "羊肉、鹿肉、牛すじ肉、鶏モモ肉、豚バラ肉", effect: "強い温熱性を持つ肉類を香辛料と共に調理し、実寒の胃気逆を抑える" },
         { cat: "🐟 魚介類", foods: "エビ、ウナギ、サバ、サンマ、ニシン", effect: "脂質を含む温性の魚介を用いてエネルギーを補い、実寒・気逆で停滞した気の巡りを改善" },
-        { cat: "🥗 野菜類", foods: "ニンニク、ショウガ、ネギ、にら、唐辛子", effect: "刺激の強い辛味で胃腸を温め、逆流した気を強力に下降させる" },
-        { cat: "🍎 果物類", foods: "ライチ、さくらんぼ、桃、金柑シロップ、ブドウ", effect: "甘味と軽い温性を持ち、少量であれば寒逆の症状緩和に役立つ" },
-        { cat: "🌿 香辛料・ハーブ", foods: "唐辛子、花椒、山椒、乾姜、クローブ", effect: "強い温め・散寒作用で胃気の逆流や咳きを抑えるのに有効" },
-        { cat: "🍚 穀類", foods: "赤米粥、にんにく醤油雑炊、もち米飯、温麺、酒粕汁", effect: "体を温める発酵食品や穀類を用い、実寒の気逆症状を鎮める" },
-        { cat: "🥜 豆類・種実類", foods: "納豆、黒豆、生姜砂糖煮、くるみ、紅糖", effect: "身体を芯から温め血行を促す食品で、実寒・気逆による寒気や嘔気を和らげる" },
-        { cat: "🍄 キノコ類", foods: "干し椎茸、生姜甘酢漬け、舞茸、松茸、トリュフ塩漬け", effect: "芳香と温性を兼ね備えたきのこ類を用い、実寒の気逆による症状を緩和する" },
-        { cat: "🌊 海藻類", foods: "昆布、生姜佃煮、ひじき煮、岩のり佃煮、板わかめ", effect: "温かい調理で摂取すれば、冷えを伴う気逆による停滞を解消しつつ栄養を補える" }
+        { cat: "🥗 野菜類", foods: "ニンニク、ショウガ、ネギ、にら、唐辛子", effect: "刺激の強い辛味で胃腸を温め、逆流した気を強力に下降させる" }
       ],
       "jitsu_netsu_kigyaku": [
         { cat: "🍖 肉類", foods: "豚ヒレ肉、鴨肉、豆腐、湯葉、納豆", effect: "熱を助長しない淡白なタンパク源を少量摂り、実熱・気逆の体質に必要な栄養を与える" },
         { cat: "🐟 魚介類", foods: "アサリ、シジミ、カニ、ホタテ、クラゲ", effect: "清熱効果が高く、過剰に上逆する気を鎮めるのに適した食材" },
-        { cat: "🥗 野菜類", foods: "ゴーヤ、セロリ、トマト、キュウリ、ナス", effect: "寒涼性が強く、実熱による気逆の緩和に有効" },
-        { cat: "🍎 果物類", foods: "スイカ、バナナ、キウイ、柿、グレープフルーツ", effect: "体内の余分な熱を冷まし、実熱・気逆によるのぼせ・吐き気を鎮める" },
-        { cat: "🌿 香辛料・ハーブ", foods: "緑茶、菊花茶、ハイビスカス、ラベンダー、ドクダミ茶", effect: "余剰な熱を冷まして鎮静する作用があり、実熱・気逆で高ぶった症状を落ち着かせる" },
-        { cat: "🍚 穀類", foods: "大麦粥、ハトムギ茶漬け、冷や麦、ところてん、ビーフン", effect: "寒涼性の穀類や寒天で余分な熱を除き、実熱の気逆による胸焼けを抑える" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、ハトムギ、白きくらげ、蓮の実、アロエ", effect: "体内の熱毒を排出し、実熱・気逆による症状を改善する" },
-        { cat: "🍄 キノコ類", foods: "椎茸、チコリタケ、黒きくらげ、タモギタケ、春菊菌", effect: "苦味を活かしたきのこスープで内熱を冷まし、実熱の気逆を鎮める" },
-        { cat: "🌊 海藻類", foods: "昆布、あおさ、海藻サラダ、寒天、もずく", effect: "清熱作用に優れた海藻類で余計な熱を取り除き実熱・気逆の症状を和らげる" }
+        { cat: "🥗 野菜類", foods: "ゴーヤ、セロリ、トマト、キュウリ、ナス", effect: "寒涼性が強く、実熱による気逆の緩和に有効" }
       ],
-
-      // ===== 気滞 (ストレス・巡り停滞) =====
       "kyo_kan_kitai": [
         { cat: "🍖 肉類", foods: "鶏肉、鴨肉、豚バラ肉、レバー(鶏・豚)、ラム肉", effect: "温性のタンパク質で胃腸を温め、気血の巡りを助ける" },
         { cat: "🐟 魚介類", foods: "鮭、えび、さんま、かつお、あさり", effect: "温性で気血の巡りを助け、冷えによる滞りを防ぐ" },
-        { cat: "🥗 野菜類", foods: "玉ねぎ、生姜、にんにく、ねぎ、大根", effect: "香りの良い辛味野菜で、冷えて滞った気を巡らせる" },
-        { cat: "🍎 果物類", foods: "みかん、温州みかん、ゆず、なつめ、ざくろ", effect: "柑橘類の香りと甘みで、ストレスで滞った気を流す" },
-        { cat: "🌿 香辛料・ハーブ", foods: "陳皮、シナモン、八角、山椒、クローブ", effect: "香りで気を流し、体を内側から温めて巡りを良くする" },
-        { cat: "🍚 穀類", foods: "もち米、玄米、あわ、きび、黒米", effect: "体を温めながら気を補い、ストレスへの抵抗力を高める" },
-        { cat: "🥜 豆類・種実類", foods: "黒豆、小豆、松の実、くるみ、ごま", effect: "気を補い、冷えによる気滞の症状を和らげる" },
-        { cat: "🍄 キノコ類", foods: "しいたけ、まいたけ、えのき、しめじ、なめこ", effect: "ミネラルを補い、胃腸の働きを助け巡りを良くする" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、ひじき、もずく、寒天", effect: "固まった気を柔らかくし、滞りを散らす" }
+        { cat: "🥗 野菜類", foods: "玉ねぎ、生姜、にんにく、ねぎ、大根", effect: "香りの良い辛味野菜で、冷えて滞った気を巡らせる" }
       ],
       "kyo_netsu_kitai": [
         { cat: "🍖 肉類", foods: "鶏むね肉、うずら肉、ささみ、豚もも肉、鴨肉", effect: "さっぱりとした良質なたんぱく質で、熱をこもらせず気を養う" },
         { cat: "🐟 魚介類", foods: "鯛、しじみ、ほたて、たこ、鮎", effect: "体を潤し、熱をこもらせずに気血を補う" },
-        { cat: "🥗 野菜類", foods: "セロリ、チンゲン菜、トマト、春菊、苦瓜", effect: "涼性の野菜で、イライラや熱を鎮める" },
-        { cat: "🍎 果物類", foods: "梨、すいか、グレープフルーツ、キウイ、びわ", effect: "瑞々しい果物で体に潤いを与え、熱を冷ます" },
-        { cat: "🌿 香辛料・ハーブ", foods: "ペパーミント、バジル、レモングラス、菊花、金銀花", effect: "香り高く鎮静作用のあるハーブでリラックスし、熱を散らす" },
-        { cat: "🍚 穀類", foods: "はとむぎ、オートミール、胚芽米、麦飯、とうもろこし", effect: "熱を冷ましつつ気を補い、胃腸への負担を抑える" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、大豆、くるみ、白ごま、アーモンド", effect: "熱を冷まし、気滞による不調を和らげる" },
-        { cat: "🍄 キノコ類", foods: "しいたけ、しめじ、エリンギ、まいたけ、ひらたけ", effect: "余計な熱を生まずに気の流れをスムーズにする" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、寒天、海苔、あおさ", effect: "余分な熱を取り除き、イライラを鎮める" }
+        { cat: "🥗 野菜類", foods: "セロリ、チンゲン菜、トマト、春菊、苦瓜", effect: "涼性の野菜で、イライラや熱を鎮める" }
       ],
       "jitsu_kan_kitai": [
         { cat: "🍖 肉類", foods: "牛肉(赤身)、ラム肉、豚肉、レバー、ベーコン", effect: "濃厚で温まる食材でエネルギーを補給し、冷えによる滞りを散らす" },
         { cat: "🐟 魚介類", foods: "さんま、イワシ、かつお、えび、いか", effect: "温性の魚介で血の巡りを良くし、気の滞りも改善する" },
-        { cat: "🥗 野菜類", foods: "生姜、にんにく、ねぎ、ピーマン、玉ねぎ", effect: "発散作用の強い野菜で、強力に気の巡りを促す" },
-        { cat: "🍎 果物類", foods: "みかん、金柑、なつめ、ざくろ、柿(控えめ)", effect: "柑橘系の香りで気を動かし、寒滞した巡りを促す" },
-        { cat: "🌿 香辛料・ハーブ", foods: "山椒、シナモン、クローブ、唐辛子、八角", effect: "強い香りと温め効果で、寒さで固まった気を力強く動かす" },
-        { cat: "🍚 穀類", foods: "黒米、もち米、そば、小麦、とうもろこし", effect: "芯から体を温め、気滞による不調を和らげる" },
-        { cat: "🥜 豆類・種実類", foods: "黒豆、小豆、ひよこ豆、ごま、くるみ", effect: "補腎作用で冷えを改善し、気滞の悪化を防ぐ" },
-        { cat: "🍄 キノコ類", foods: "しいたけ、えのき、まいたけ、きくらげ、しめじ", effect: "濃厚な風味で気を動かし、寒滞した気の巡りを改善する" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、ひじき、寒天、もずく", effect: "しこりや滞りを柔らかくして巡りを助ける" }
+        { cat: "🥗 野菜類", foods: "生姜、にんにく、ねぎ、ピーマン、玉ねぎ", effect: "発散作用の強い野菜で、強力に気の巡りを促す" }
       ],
       "jitsu_netsu_kitai": [
         { cat: "🍖 肉類", foods: "鶏むね肉、うずら肉、豚ヒレ肉、七面鳥、ささみ", effect: "脂肪が少なく体を熱しにくい部位で、高ぶった気を落ち着かせる" },
         { cat: "🐟 魚介類", foods: "鯛、しじみ、ほたて、鮎、いか", effect: "清熱作用のある魚介類で、余分な熱を冷ます" },
-        { cat: "🥗 野菜類", foods: "セロリ、トマト、チンゲン菜、大根、にがうり", effect: "苦味や涼性を持つ野菜で、過剰な熱を冷ましストレスを緩和する" },
-        { cat: "🍎 果物類", foods: "グレープフルーツ、すいか、梨、柿、キウイ", effect: "清熱作用のある果物で、のぼせやイライラを和らげる" },
-        { cat: "🌿 香辛料・ハーブ", foods: "ペパーミント、菊花、レモングラス、金銀花、カモミール", effect: "清涼感のあるハーブで、イライラをスッと鎮める" },
-        { cat: "🍚 穀類", foods: "胚芽米、オートミール、粟、麦飯", effect: "涼性・平性の穀類で、余計な熱を生じさせずに気の巡りを促す" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、大豆、白ごま、アーモンド、くるみ", effect: "体内の熱を冷ましつつ、実熱・気滞による炎症を鎮める" },
-        { cat: "🍄 キノコ類", foods: "しいたけ、エリンギ、まいたけ、しめじ、ひらたけ", effect: "低カロリーで余熱を生むことなく気を巡らせる" },
-        { cat: "🌊 海藻類", foods: "昆布、寒天、あおさ、海苔、もずく", effect: "余分な熱を取り除き、炎症を鎮めて気滞の不快症状を緩和" }
+        { cat: "🥗 野菜類", foods: "セロリ、トマト、チンゲン菜、大根、にがうり", effect: "苦味や涼性を持つ野菜で、過剰な熱を冷ましストレスを緩和する" }
       ],
-      // ===== 血虚 (栄養不足・カサカサ) =====
       "kyo_kan_kekkyo": [
         { cat: "🍖 肉類", foods: "羊肉、豚レバー、鶏レバー、牛肉、鶏肉", effect: "温性で補血作用があり、寒がりで血虚の体質に活力を与える" },
         { cat: "🐟 魚介類", foods: "イワシ、ブリ、穴子、タチウオ、サバ", effect: "血を補い体を温める青魚中心の食材で、虚寒・血虚の冷え症状を改善" },
-        { cat: "🥗 野菜類", foods: "ほうれん草、ニンジン、パセリ、枝豆、ニラ", effect: "血を増やし体を温める野菜で虚寒・血虚の冷え症状を緩和" },
-        { cat: "🍎 果物類", foods: "ブドウ、栗、ライチ、プルーン、レーズン", effect: "甘味と温性で補血・強壮作用があり、虚寒・血虚の体にエネルギーを与える" },
-        { cat: "🌿 香辛料・ハーブ", foods: "生姜、桂皮(シナモン)、当帰、紅花、黒砂糖", effect: "身体を温め血行を促す作用があり、虚寒・血虚で冷えた血を補うのに有効" },
-        { cat: "🍚 穀類", foods: "もち米、黒米、キビ、玄米、オートミール", effect: "温性の穀類を粥などで摂り、脾胃を温めて血の生産を助ける" },
-        { cat: "🥜 豆類・種実類", foods: "黒ごま、小豆、黒豆、ナツメ、松の実", effect: "血を補い体を温める種実類で、虚寒・血虚の体質改善に役立つ" },
-        { cat: "🍄 キノコ類", foods: "干し椎茸、舞茸、マイタケ(乾燥)、マツタケ、黒きくらげ", effect: "補血作用があり体を温める干しキノコ類で、虚寒血虚の冷えや貧血症状を改善" },
-        { cat: "🌊 海藻類", foods: "昆布、黒海苔、岩のり、もずく、寒天", effect: "血を補うミネラルが多く含まれ、温かい料理に加えて摂れば虚寒・血虚の滋養に有効" }
+        { cat: "🥗 野菜類", foods: "ほうれん草、ニンジン、パセリ、枝豆、ニラ", effect: "血を増やし体を温める野菜で虚寒・血虚の冷え症状を緩和" }
       ],
       "kyo_netsu_kekkyo": [
         { cat: "🍖 肉類", foods: "鴨肉、豚肉、鶏レバー、卵、牛乳", effect: "潤いを与えながら血を補う食材で、虚熱・血虚によるほてりや乾燥を改善" },
         { cat: "🐟 魚介類", foods: "牡蠣、アワビ、ナマコ、ホタテ、クラゲ", effect: "滋陰養血の作用があり、虚熱による血虚症状(のぼせや皮膚乾燥)を緩和" },
-        { cat: "🥗 野菜類", foods: "ほうれん草、チンゲンサイ、レタス、トマト、枝豆", effect: "ビタミン・ミネラル豊富で体を潤し、虚熱・血虚のほてりや乾燥肌を改善" },
-        { cat: "🍎 果物類", foods: "ブドウ、プルーン、クコの実、イチジク、梨", effect: "甘潤で血を養いながら熱を冷ます果物で、虚熱・血虚による不調に有効" },
-        { cat: "🌿 香辛料・ハーブ", foods: "菊花茶、カモミール、ローズヒップ、クコ茶、蜂蜜", effect: "清熱と滋養作用で血を補い、虛熱・血虚の不眠や不安を鎮める" },
-        { cat: "🍚 穀類", foods: "大麦、はと麦、玄米、コーンフレーク、ライ麦パン", effect: "体に熱をこもらせず栄養補給できる穀類を主食にする" },
-        { cat: "🥜 豆類・種実類", foods: "白ごま、黒きくらげ、百合根、蓮の実、豆乳", effect: "陰を養い血も補う食材で、虛熱・血虚による乾きやすい症状を和らげる" },
-        { cat: "🍄 キノコ類", foods: "しめじ、えのき茸、なめこ、ヤマブシタケ、ハナビラタケ", effect: "低脂肪で食物繊維が多く、虛熱・血虚の体にも負担なく栄養補給できる" },
-        { cat: "🌊 海藻類", foods: "昆布、寒天、もずく、ツルムラサキ、海藻ゼリー", effect: "熱を帯びた血を冷まし潤す作用があり、虛熱・血虚ののぼせや肌乾燥を改善する" }
+        { cat: "🥗 野菜類", foods: "ほうれん草、チンゲンサイ、レタス、トマト、枝豆", effect: "ビタミン・ミネラル豊富で体を潤し、虚熱・血虚のほてりや乾燥肌を改善" }
       ],
       "jitsu_kan_kekkyo": [
         { cat: "🍖 肉類", foods: "羊肉、鹿肉、牛肉、豚レバー、鶏レバー", effect: "温性の滋養が強い肉類で血を補い、冷えを伴う血虚を改善" },
         { cat: "🐟 魚介類", foods: "ウナギ、マグロ、サンマ、イワシ、ブリ", effect: "脂質が多くエネルギーになる魚介を摂り、実寒・血虚による血行不良を改善" },
-        { cat: "🥗 野菜類", foods: "ほうれん草、ニンジン、ビーツ、ニラ、かぼちゃ", effect: "血を増やす栄養が豊富で体を温める野菜をとり、実寒・血虚の症状を緩和" },
-        { cat: "🍎 果物類", foods: "ブドウ、干しプルーン、ナツメ、ライチ、栗", effect: "濃厚な甘味で補血と強壮効果があり、実寒・血虚の体質改善に有効" },
-        { cat: "🌿 香辛料・ハーブ", foods: "当帰、生姜、桂皮、杜仲茶、黒糖", effect: "芯から体を温め血行を促すことで、実寒・血虚による諸症状を改善" },
-        { cat: "🍚 穀類", foods: "もち米、生姜粥、黒米ご飯、雑穀米、八宝粥", effect: "温熱性の穀類をふんだんに使い、脾腎を温めて血を増やす伝統粥" },
-        { cat: "🥜 豆類・種実類", foods: "黒豆、クコの実、ナツメ、松の実、クルミ", effect: "腎を補い血を作る食材を積極的に摂り、実寒・血虚による腰冷えやめまいを改善する" },
-        { cat: "🍄 キノコ類", foods: "干し椎茸、舞茸、干しマイタケ、松茸、黒きくらげ", effect: "補血・活血作用があり体を温める乾燥キノコ類で、実寒・血虚の冷えや疼痛を改善する" },
-        { cat: "🌊 海藻類", foods: "昆布、黒海苔、ひじき、もずく、岩のり", effect: "温かい料理に加えて摂取することで、実寒・血虚の血行不良改善と栄養補給に役立つ" }
+        { cat: "🥗 野菜類", foods: "ほうれん草、ニンジン、ビーツ、ニラ、かぼちゃ", effect: "血を増やす栄養が豊富で体を温める野菜をとり、実寒・血虚の症状を緩和" }
       ],
       "jitsu_netsu_kekkyo": [
         { cat: "🍖 肉類", foods: "豚肉(ヒレ)、鴨肉、豆腐、湯葉、納豆", effect: "熱を助長しない淡白なタンパク源を選び、実熱・血虚の体質に必要な栄養を与える" },
         { cat: "🐟 魚介類", foods: "アサリ、シジミ、ムール貝、牡蠣、ヒラメ", effect: "余分な熱を冷ましつつ貧血を改善するミネラル豊富な魚介類" },
-        { cat: "🥗 野菜類", foods: "苦瓜、セロリ、チコリ、春菊、クレソン", effect: "苦味成分で熱を冷まし、実熱血虚におけるのぼせや赤ら顔を改善" },
-        { cat: "🍎 果物類", foods: "スイカ、バナナ、キウイフルーツ、柿、グレープフルーツ", effect: "清熱作用が強く、実熱・血虚のほてり・炎症を鎮める" },
-        { cat: "🌿 香辛料・ハーブ", foods: "菊花茶、ハイビスカス、ローズマリー、ドクダミ茶、緑茶", effect: "余剰な熱を冷まして解毒する作用があり、実熱・血虚の諸症状を和らげる" },
-        { cat: "🍚 穀類", foods: "玄米、押し麦、はと麦、蕎麦、コーンスターチ", effect: "寒涼性の穀類で余計な熱を生まず、実熱・血虚の体質を支える" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、豆腐、湯葉、白きくらげ、杏仁", effect: "滋陰清熱作用で血を補い、実熱・血虚による乾燥や不眠を改善する" },
-        { cat: "🍄 キノコ類", foods: "椎茸(生)、黒きくらげ、タモギタケ、えのき茸、アガリクス", effect: "抗酸化成分が豊富で余分な熱を取るキノコ類を活用し、実熱・血虚の血行不良を改善" },
-        { cat: "🌊 海藻類", foods: "昆布、あおさ、もずく、寒天、海ぶどう", effect: "冷却・利水作用で血の滞りや炎症を抑え、実熱・血虚の症状を和らげる" }
+        { cat: "🥗 野菜類", foods: "苦瓜、セロリ、チコリ、春菊、クレソン", effect: "苦味成分で熱を冷まし、実熱血虚におけるのぼせや赤ら顔を改善" }
       ],
-
-      // ===== 瘀血 (血行不良・ドロドロ) =====
       "kyo_kan_oketsu": [
         { cat: "🍖 肉類", foods: "羊肉、鶏肉、牛肉、レバー(豚・鶏)、鴨肉", effect: "体を温め血を補う肉類で滞った血の巡りを改善し、虚寒・瘀血の冷えや貧血に効果" },
         { cat: "🐟 魚介類", foods: "サバ、イワシ、サンマ、マグロ、穴子", effect: "温性で血行を促す青魚を中心に、虚寒・瘀血の瘀滞を解消" },
-        { cat: "🥗 野菜類", foods: "玉ねぎ、ニラ、ラッキョウ、ショウガ、唐辛子", effect: "発汗・血行促進作用が強い野菜を用い、寒の瘀血による痛みや凝りを和らげる" },
-        { cat: "🍎 果物類", foods: "ブドウ、黒梅干し、クコの実、ザクロ、チェリー", effect: "黒紫色の果実は補血・活血作用があり、虚寒・瘀血の血行不良を改善" },
-        { cat: "🌿 香辛料・ハーブ", foods: "シナモン、当帰、生姜、ウコン、紅花", effect: "血行促進と鎮痛作用があり、冷えによる瘀血の痛みやこわばりを緩和" },
-        { cat: "🍚 穀類", foods: "そば、黒米、もち米、雑穀米、赤ワイン少量", effect: "※適量の赤ワインは血行を良くするとされ、冷え性の瘀血に有効" },
-        { cat: "🥜 豆類・種実類", foods: "納豆、黒豆、金時豆、胡桃、黒ゴマ", effect: "血液をサラサラにしつつ体を温める食品で、虚寒瘀血の血行改善に寄与" },
-        { cat: "🍄 キノコ類", foods: "黒きくらげ、干し椎茸、マイタケ、ヤマブシタケ、チャーガ", effect: "黒いキノコ類は活血作用があり、瘀血による血行不良の改善に有用" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、フノリ、もずく、メカブ", effect: "海藻類の多糖が血液を滑らかにし、瘀血の塊を柔らげるのを助ける" }
+        { cat: "🥗 野菜類", foods: "玉ねぎ、ニラ、ラッキョウ、ショウガ、唐辛子", effect: "発汗・血行促進作用が強い野菜を用い、寒の瘀血による痛みや凝りを和らげる" }
       ],
       "kyo_netsu_oketsu": [
         { cat: "🍖 肉類", foods: "鴨肉、豚肉、レバー(豚)、牛乳、卵黄", effect: "潤いを与えつつ血を補い、虚熱・瘀血で生じるのぼせや皮膚のシミを改善する" },
         { cat: "🐟 魚介類", foods: "イカ、タコ、クラゲ、牡蠣、アサリ", effect: "清熱・軟堅作用があり、虛熱・瘀血によるこわばりやしこりを和らげる" },
-        { cat: "🥗 野菜類", foods: "セロリ、トマト、ナス、蓮根", effect: "清熱と活血作用を併せ持つ野菜で、虚熱・瘀血のほてりや皮膚トラブルを緩和" },
-        { cat: "🍎 果物類", foods: "イチゴ、ラズベリー、スモモ、柑橘類、スイカ", effect: "ビタミン豊富で血を補いながら熱を冷ます果物。瘀血で滞った血の巡りを改善する" },
-        { cat: "🌿 香辛料・ハーブ", foods: "菊花、ミント、ラベンダー、ローズ、山楂子茶", effect: "苦味・酸味で鬱熱を散らし血行を促すハーブ。虚熱・瘀血のストレスや頭痛を和らげる" },
-        { cat: "🍚 穀類", foods: "はと麦、もち麦、玄米、大麦若葉粉末、コーンスターチ", effect: "利水と清熱の作用があり、虛熱・瘀血のむくみや炎症を軽減する" },
-        { cat: "🥜 豆類・種実類", foods: "黒豆(煮汁ごと)、緑豆餡、ハスの実、黒ゴマ、松の実", effect: "滋陰しつつ血を動かす食材で、虚熱・瘀血の乾燥や瘀滞症状を改善する" },
-        { cat: "🍄 キノコ類", foods: "きくらげ、エリンギ、タモギタケ、チャガ、冬虫夏草", effect: "滋養と清熱を兼ねる希少きのこ類。虛熱・瘀血の皮膚症状や微熱を緩和する" },
-        { cat: "🌊 海藻類", foods: "昆布、ツル藻、アロエ(食用)、寒天、海藻サラダ", effect: "清熱解毒作用があり、虚熱・瘀血による炎症や色素沈着を改善する" }
+        { cat: "🥗 野菜類", foods: "セロリ、トマト、ナス、蓮根", effect: "清熱と活血作用を併せ持つ野菜で、虚熱・瘀血のほてりや皮膚トラブルを緩和" }
       ],
       "jitsu_kan_oketsu": [
         { cat: "🍖 肉類", foods: "羊肉、牛肉、猪肉、ラム肉、鶏肉", effect: "陽性が強く血行を促す肉類を積極的に摂り、実寒・瘀血の冷えや痛みを改善" },
         { cat: "🐟 魚介類", foods: "カツオ、サバ、イワシ、マグロ、ニシン", effect: "血を動かす青魚を中心に、実寒・瘀血の体内で滞った血流を改善" },
-        { cat: "🥗 野菜類", foods: "玉ねぎ、ニラ、ラッキョウ、ショウガ、唐辛子", effect: "発汗・血行促進作用が強い野菜を用い、実寒の瘀血による痛みや凝りを和らげる" },
-        { cat: "🍎 果物類", foods: "黒梅酒、ぶどう、プルーン、柘榴、梅肉エキス", effect: "適量の酸味と温性で瘀血を散らし、実寒・瘀血の瘀滞を解消する" },
-        { cat: "🌿 香辛料・ハーブ", foods: "当帰酒、桂皮、花椒、にんにく、生姜", effect: "血行を大いに促し体を温める香辛料で、実寒・瘀血の疼痛や凝血を緩和する" },
-        { cat: "🍚 穀類", foods: "黒米、赤米、そば、もち麦、粳米", effect: "温性の穀物を主体に血の巡りを改善し、実寒・瘀血の体質を支える" },
-        { cat: "🥜 豆類・種実類", foods: "納豆、醤油麹、黒酢大豆、金時豆、ピーナッツ", effect: "発酵や酸味を取り入れた豆類で血液循環を改善し、実寒・瘀血のドロドロ血を解消する" },
-        { cat: "🍄 キノコ類", foods: "黒きくらげ、干し椎茸、紅麹菌、霊芝、マイタケ", effect: "血行を良くし瘀血を散らす作用がある菌類を活用し、実寒・瘀血を改善する" },
-        { cat: "🌊 海藻類", foods: "昆布、もずく酢、黒酢入り海藻、ひじき、生もずく", effect: "酢や生姜と組み合わせることで血行促進効果が高まり、実寒・瘀血の解消に役立つ" }
+        { cat: "🥗 野菜類", foods: "玉ねぎ、ニラ、ラッキョウ、ショウガ、唐辛子", effect: "発汗・血行促進作用が強い野菜を用い、実寒の瘀血による痛みや凝りを和らげる" }
       ],
       "jitsu_netsu_oketsu": [
         { cat: "🍖 肉類", foods: "鴨肉、豚肉、豆腐、高野豆腐、豆乳", effect: "熱をこもらせずタンパク質補給できる食品を選び、実熱・瘀血の体質に栄養を与える" },
         { cat: "🐟 魚介類", foods: "カニ、クラゲ、ホヤ、あさり、しじみ", effect: "清熱軟堅作用があり、実熱・瘀血のこわばりやしこり(瘤)を和らげる" },
-        { cat: "🥗 野菜類", foods: "セロリ、ゴーヤ、チシャ(葉レタス)、茗荷、冬瓜", effect: "苦味・涼性の野菜で肝火を鎮め、実熱・瘀血による怒りっぽさや頭痛を軽減" },
-        { cat: "🍎 果物類", foods: "トマト、柿、ザクロ、バナナ、ブルーベリー", effect: "抗酸化成分が豊富で清熱作用もある果物を摂り、実熱・瘀血の炎症や瘀斑を改善する" },
-        { cat: "🌿 香辛料・ハーブ", foods: "菊花、金銀花、薄荷、甘草、タンポポ茶", effect: "清熱解毒作用のあるハーブで余分な熱を冷まし、実熱・瘀血の肌荒れや炎症を鎮める" },
-        { cat: "🍚 穀類", foods: "大麦、ハトムギ、コーンスターチ、緑豆春雨、ライ麦パン", effect: "寒涼性の穀類で余分な熱を抑えつつ血管の健康を保つ" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、リョクトウ芽(もやし)、黒木耳、山査子、羅漢果", effect: "清熱・活血作用を併せ持つ食材で、実熱・瘀血の高血圧や吹き出物を改善する" },
-        { cat: "🍄 キノコ類", foods: "白きくらげ、黒きくらげ、チャガ、霊芝、カバノアナタケ", effect: "抗炎症・抗酸化作用を持つキノコを用い、実熱・瘀血の内炎症を鎮める" },
-        { cat: "🌊 海藻類", foods: "昆布、フノリ、海藻サラダ、もずく酢、寒天", effect: "体内の余熱を取り血液をサラサラにする海藻類で、実熱・瘀血の循環改善に役立つ" }
+        { cat: "🥗 野菜類", foods: "セロリ、ゴーヤ、チシャ(葉レタス)、茗荷、冬瓜", effect: "苦味・涼性の野菜で肝火を鎮め、実熱・瘀血による怒りっぽさや頭痛を軽減" }
       ],
-
-      // ===== 水滞 (むくみ・ポチャポチャ) =====
       "kyo_kan_suitai": [
         { cat: "🍖 肉類", foods: "鴨肉、牛タン、豚レバー、鶏肉、羊肉", effect: "身体を温め腎・脾を補う肉類で利尿を促し、虚寒・水滞のむくみ改善に適す" },
         { cat: "🐟 魚介類", foods: "鯉(ブイヤベース)、ドジョウ、イワシ、鮭、はぜ", effect: "滋養強壮かつ利尿作用がある魚介で、虚寒・水滞の水分滞留を軽減する" },
-        { cat: "🥗 野菜類", foods: "生姜、ネギ、かぼちゃ、キャベツ、空心菜", effect: "体を温めて水分代謝を高める野菜で、虚寒・水滞の冷えとむくみを改善" },
-        { cat: "🍎 果物類", foods: "栗、干し龍眼肉、みかん、ぶどう、クコの実", effect: "甘温で気血を補い、虚寒の水滞で弱った代謝を助ける果物" },
-        { cat: "🌿 香辛料・ハーブ", foods: "生姜、シナモン、花椒、クローブ、陳皮", effect: "身体を温め利水する香辛料で、虚寒・水滞の冷えによる水滞を改善" },
-        { cat: "🍚 穀類", foods: "もち米、はと麦、あわ、玄米、雑穀", effect: "体を温める穀類をお粥で摂り、虚寒・水滞の代謝不良を改善" },
-        { cat: "🥜 豆類・種実類", foods: "小豆、黒豆、緑豆、黒ゴマ、南部茶大豆", effect: "利水作用と補腎作用を兼ね備え、虚寒・水滞のむくみ改善に効果" },
-        { cat: "🍄 キノコ類", foods: "舞茸、木耳(きくらげ)、榎茸、椎茸、冬虫夏草", effect: "利尿・免疫調節作用があり、虚寒・水滞の水分代謝を助けつつ体力を補う" },
-        { cat: "🌊 海藻類", foods: "昆布、わかめ、あおさ、もずく、焼き海苔", effect: "ミネラル補給により代謝を促し、温かい汁物で摂れば虚寒・水滞のむくみ改善に役立つ" }
+        { cat: "🥗 野菜類", foods: "生姜、ネギ、かぼちゃ、キャベツ、空心菜", effect: "体を温めて水分代謝を高める野菜で、虚寒・水滞の冷えとむくみを改善" }
       ],
       "kyo_netsu_suitai": [
         { cat: "🍖 肉類", foods: "豚肉(赤身)、豆腐、豆乳、鶏ささみ、烏骨鶏肉", effect: "熱をこもらせずタンパク質補給できる食材で、虚熱・水滞の水捉え悪さを改善" },
         { cat: "🐟 魚介類", foods: "あさり、しじみ、フグ、鯛、スズキ", effect: "清熱利水作用があり、虛熱・水滞によるむくみ・眩暈を改善する魚介類" },
-        { cat: "🥗 野菜類", foods: "冬瓜、きゅうり、セロリ、タイム、チコリ", effect: "清熱利尿作用のある野菜・ハーブで余分な水を排出し、虚熱水滞の症状(のぼせ、頭重)を緩和" },
-        { cat: "🍎 果物類", foods: "スイカ、メロン、スターフルーツ、すもも、マクワウリ", effect: "体を冷やし余分な熱を取りつつ利尿を促す果物で、虛熱・水滞のむくみ・ほてりを改善" },
-        { cat: "🌿 香辛料・ハーブ", foods: "菊花、ハイビスカス、ミント、コリアンダー、緑茶", effect: "清涼感と利尿作用で熱を冷まし水を巡らせるハーブで、虚熱・水滞の不調を改善" },
-        { cat: "🍚 穀類", foods: "大麦、ハトムギ、とうもろこし、リゾット(玄米)、ビーフン", effect: "清熱利水の穀類を主体にして、水滞による余分な熱と水を排出" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、エンドウ豆(グリーンピース)、枝豆、レンティル豆、白インゲン豆", effect: "余分な水分を排出しながら体を潤す豆類で、虚熱水滞の代謝を助ける" },
-        { cat: "🍄 キノコ類", foods: "冬虫夏草、タモギタケ、春雨茸、えのき茸、フキタンポポ菌糸体", effect: "利水・清熱効果をもつ菌類で、虚熱・水滞のむくみと炎症を軽減する" },
-        { cat: "🌊 海藻類", foods: "昆布、あおさ、白きくらげ、はまぐり寒天寄せ、もずく", effect: "水分代謝が滞ってできた痰湿を解消する作用があり、虛熱・水滞の症状を緩和" }
+        { cat: "🥗 野菜類", foods: "冬瓜、きゅうり、セロリ、タイム、チコリ", effect: "清熱利尿作用のある野菜・ハーブで余分な水を排出し、虚熱水滞の症状(のぼせ、頭重)を緩和" }
       ],
       "jitsu_kan_suitai": [
         { cat: "🍖 肉類", foods: "羊肉、牛肉、羊腎(腰子)、鶏肉、ベーコン", effect: "温熱性が高く利尿を促す肉類を適度に摂り、実寒・水滞のむくみを改善" },
         { cat: "🐟 魚介類", foods: "鯉、エビ、赤貝、鮭、ニシン", effect: "体を温め腎機能を高める魚介類で、実寒・水滞の余分な水分を排出" },
-        { cat: "🥗 野菜類", foods: "生姜、ネギ、ニラ、山椒、パクチー", effect: "身体を温め発汗・利尿を促す野菜で、水滞による冷えと停滞を改善" },
-        { cat: "🍎 果物類", foods: "キンカン、温州ミカン、ゆず、桃、ドリアン", effect: "温性の果実を少量取り入れ、実寒・水滞で低下した代謝を補う" },
-        { cat: "🌿 香辛料・ハーブ", foods: "生姜、花椒、胡椒、唐辛子、ナツメグ", effect: "辛温の香辛料で体を温め発汗させ、水滞による余分な水分を発散" },
-        { cat: "🍚 穀類", foods: "もち米、生姜粥、粟、炒り玄米、雑穀飯", effect: "体を温める穀類を主食にして、水滞による冷えとむくみを改善" },
-        { cat: "🥜 豆類・種実類", foods: "小豆、黒豆、栗、刀豆(ナタマメ)、ハトムギ", effect: "利尿・温中作用がある豆類で、実寒・水滞の余分な水を排出" },
-        { cat: "🍄 キノコ類", foods: "干し椎茸、霊芝、チャーガ、マイタケ、榎茸", effect: "免疫賦活と利水作用がある菌類を摂り、実寒・水滞の水毒を除去する" },
-        { cat: "🌊 海藻類", foods: "昆布、ひじき、寒天、ところてん、葛きり", effect: "腸を動かし水を排出する寒涼性の食材を利用し、実寒・水滞の痰湿を取り除く" }
+        { cat: "🥗 野菜類", foods: "生姜、ネギ、ニラ、山椒、パクチー", effect: "身体を温め発汗・利尿を促す野菜で、水滞による冷えと停滞を改善" }
       ],
       "jitsu_netsu_suitai": [
         { cat: "🍖 肉類", foods: "豚肉、鴨肉、豆腐、豆乳、白身魚", effect: "脂肪分が少なく利尿を妨げないタンパク源を選び、実熱・水滞の体質に必要な栄養を与える" },
         { cat: "🐟 魚介類", foods: "すっぽん、カニ、アサリ、シジミ、アワビ", effect: "清熱利水作用が非常に強い食材で、実熱・水滞の頑固なむくみや湿熱を改善" },
-        { cat: "🥗 野菜類", foods: "ゴーヤ、冬瓜、茄子、レンコン、セロリ", effect: "体を冷やす強い作用で余分な熱を取り、実熱・水滞の湿熱やほてりを抑える" },
-        { cat: "🍎 果物類", foods: "スイカ、メロン、パイナップル、グレープフルーツ、梨", effect: "利尿作用の高い果物で余分な水分と熱を排出し、実熱・水滞の症状(むくみ・のぼせ)を軽減" },
-        { cat: "🌿 香辛料・ハーブ", foods: "緑茶、プーアール茶、杜仲茶、ハイビスカス、ウコン茶", effect: "余分な水分と熱を排出解毒する茶類で、実熱・水滞の湿熱を取り除く" },
-        { cat: "🍚 穀類", foods: "はと麦、大麦、とうもろこし粉、緑豆春雨、オートミール", effect: "利水効果の高い穀類を中心に食べ、実熱・水滞の体内余分な水分を除去" },
-        { cat: "🥜 豆類・種実類", foods: "緑豆、リョクトウもやし、荷葉茶(蓮葉)、烏龍茶、大豆発酵物", effect: "清熱利湿作用で湿熱を除く食材を摂り、実熱・水滞のむくみ・軟便を改善する" },
-        { cat: "🍄 キノコ類", foods: "白きくらげ、黒きくらげ、竹茹(湯通しタケノコ)、茯苓、猪苓", effect: "利水渗湿作用がある薬用キノコ・竹類を活用し、実熱・水滞の湿熱をさばく" },
-        { cat: "🌊 海藻類", foods: "昆布、海藻麺、寒天ゼリー、あおさ、もずく", effect: "利尿降脂作用により体内の余剰水分や脂肪を排出し、実熱・水滞の改善に寄与する" }
-      ]  
+        { cat: "🥗 野菜類", foods: "ゴーヤ、冬瓜、茄子、レンコン、セロリ", effect: "体を冷やす強い作用で余分な熱を取り、実熱・水滞の湿熱やほてりを抑える" }
+      ]
     };
-    // 💡 若者向け・ガッツリ隠れ薬膳メニュー（全24体質・レシピ完全版）
+
     const heartyMenus = {
-      // ===== 気虚（エネルギー不足） =====
-      kyo_kan_kikyo: { 
-        name: "鶏もも肉と長ネギのやみつき焼き鳥丼", 
-        desc: "鶏もも肉とネギで体をしっかり温め、エネルギーをチャージする最強の組み合わせ！",
-        ingredients: "米：1合<br>鶏もも肉：1/2枚<br>長ネギ：1/2本<br>醤油・みりん・酒：各大さじ1<br>砂糖：小さじ1",
-        steps: "1. 炊飯器に米と調味料をすべて入れる。<br>2. 1合の目盛りまで水を足して軽く混ぜる。<br>3. 切った鶏肉とネギを乗せて通常通り炊飯。<br>4. 炊き上がったら混ぜて完成！"
-      },
-      kyo_netsu_kikyo: { 
-        name: "豚肉と山芋のふわとろお好み焼き", 
-        desc: "山芋で胃腸を優しく潤し、豚肉で疲労回復。美味しく気を補います！",
-        ingredients: "山芋（すりおろし）：150g<br>卵：1個<br>キャベツ（千切り）：1枚分<br>豚バラ肉：3枚<br>和風顆粒だし：小さじ1",
-        steps: "1. ボウルに山芋、卵、だし、キャベツを入れて混ぜる。<br>2. フライパンで豚肉を焼き、上に1の生地を流し込む。<br>3. 両面を3〜4分ずつ弱中火でこんがり焼いたら完成！"
-      },
-      jitsu_kan_kikyo: { 
-        name: "牛肉とニンニクのガッツリスタミナ焼肉", 
-        desc: "牛肉とニンニクの強力タッグで、冷えを吹き飛ばし活力を生み出します！",
-        ingredients: "牛カルビまたは赤身肉：150g<br>玉ねぎ：1/4個<br>焼肉のタレ：大さじ2<br>すりおろしニンニク：チューブ2cm<br>ごま油：適量",
-        steps: "1. フライパンにごま油とニンニクを入れて火にかける。<br>2. 香りが出たら牛肉とスライスした玉ねぎを炒める。<br>3. 火が通ったら焼肉のタレを絡めて完成！"
-      },
-      jitsu_netsu_kikyo: { 
-        name: "鮭のホイル焼き レモンバター醤油", 
-        desc: "鮭で胃腸を整えつつ、レモンの酸味で体内の余分な熱を冷ます一品！",
-        ingredients: "生鮭：1切れ<br>しめじ：1/4パック<br>バター：10g<br>醤油：小さじ1<br>レモン汁：少々",
-        steps: "1. アルミホイルに鮭としめじを乗せる。<br>2. バターと醤油をかけ、ホイルをしっかり閉じる。<br>3. トースターで15分ほど焼き、仕上げにレモンを絞る。"
-      },
-
-      // ===== 気逆（のぼせ・イライラ） =====
-      kyo_kan_kigyaku: { 
-        name: "豚バラ大根の生姜たっぷりミルフィーユ鍋", 
-        desc: "大根と生姜の力で逆流した気を下に降ろし、胃をポカポカに温めます！",
-        ingredients: "豚バラ薄切り肉：150g<br>大根：1/4本<br>生姜（千切り）：1片分<br>ポン酢：適量",
-        steps: "1. 大根を薄いいちょう切りにし、豚肉と交互に重ねる。<br>2. 耐熱皿に並べ、上に生姜を散らす。<br>3. ふんわりラップをしてレンジ(600W)で6〜8分加熱。ポン酢で食べる。"
-      },
-      kyo_netsu_kigyaku: { 
-        name: "牡蠣と白菜の濃厚クリームシチュー", 
-        desc: "牡蠣と牛乳で体に潤いを与え、のぼせや乾燥を優しく鎮めます！",
-        ingredients: "牡蠣：100g<br>白菜：1〜2枚<br>市販のシチュールー：1かけ<br>牛乳：100ml<br>水：100ml",
-        steps: "1. 鍋でざく切りにした白菜を少ししんなりするまで炒める。<br>2. 水と牛乳を入れて煮立たせ、ルーを溶かす。<br>3. 洗った牡蠣を入れて3分ほど煮込めば完成！"
-      },
-      jitsu_kan_kigyaku: { 
-        name: "牛肉と長ネギのピリ辛すき煮", 
-        desc: "温かいネギとピリ辛味で胃腸を刺激し、イライラや吐き気を下へ流します！",
-        ingredients: "牛薄切り肉：100g<br>長ネギ：1本<br>めんつゆ（3倍濃縮）：大さじ2<br>水：大さじ2<br>一味唐辛子：お好みで",
-        steps: "1. 長ネギは斜め切りにする。<br>2. 小鍋にめんつゆと水を入れて沸かし、牛肉とネギを入れる。<br>3. 火が通るまでサッと煮て、仕上げに一味唐辛子を振る。"
-      },
-      jitsu_netsu_kigyaku: { 
-        name: "豚しゃぶとトマトの冷製さっぱりパスタ", 
-        desc: "トマトで熱を冷まし、ストレスやのぼせをリフレッシュさせるさっぱりメニュー！",
-        ingredients: "パスタ：100g<br>豚しゃぶ用肉：80g<br>トマト：1個（角切り）<br>オリーブオイル：大さじ1<br>めんつゆ：大さじ1",
-        steps: "1. パスタを茹で、冷水で締める。豚肉もサッと茹でて冷ます。<br>2. ボウルにトマト、オイル、めんつゆを入れて混ぜる。<br>3. パスタと豚肉を加えてよく和えれば完成。"
-      },
-
-      // ===== 気滞（ストレス・巡り停滞） =====
-      kyo_kan_kitai: { 
-        name: "鶏もも肉と玉ねぎの生姜焼き", 
-        desc: "鶏もも肉と生姜、玉ねぎの香りで、冷えて滞った気（ストレス）をパッと発散！",
-        ingredients: "鶏もも肉：150g<br>玉ねぎ：1/2個<br>醤油・みりん・酒：各大さじ1<br>すりおろし生姜：小さじ1",
-        steps: "1. 鶏肉は一口大、玉ねぎはスライスにする。<br>2. フライパンで鶏肉を焼き、色が変わったら玉ねぎを加える。<br>3. 調味料と生姜を入れて照りが出るまで炒め絡める。"
-      },
-      kyo_netsu_kitai: { 
-        name: "サバ缶の梅おろし和え", 
-        desc: "サバで気を補い、大根おろしと梅の酸味でリラックス効果バツグン！",
-        ingredients: "サバの水煮缶：1缶<br>大根おろし：たっぷり<br>梅干し：1個（叩く）<br>ポン酢：少々",
-        steps: "1. サバ缶の汁気を軽く切って器に盛る。<br>2. 大根おろしと叩いた梅干しを乗せる。<br>3. お好みでポン酢を少し垂らして完成。火を使わない超時短レシピ！"
-      },
-      jitsu_kan_kitai: { 
-        name: "牛肉とピーマンの特製チンジャオロース", 
-        desc: "ピーマンの香りで強力に気の巡りを促し、溜まったストレスを動かします！",
-        ingredients: "牛薄切り肉：100g<br>ピーマン：3個（細切り）<br>オイスターソース：大さじ1<br>酒・醤油：各小さじ1<br>ごま油：適量",
-        steps: "1. フライパンにごま油を熱し、細切りにした牛肉を炒める。<br>2. 肉の色が変わったらピーマンを加えてサッと炒める。<br>3. 調味料をすべて入れて全体に絡めば完成！"
-      },
-      jitsu_netsu_kitai: { 
-        name: "豚ヒレ肉とトマトの簡単酸辣湯（サンラータン）スープ", 
-        desc: "酸味とトマトで過剰な熱を冷まし、高ぶった気持ちを吹き飛ばします！",
-        ingredients: "豚ヒレ肉（または小間切れ）：50g<br>トマト：1/2個<br>卵：1個<br>鶏ガラスープの素：小さじ1<br>酢：小さじ2<br>ラー油：少々",
-        steps: "1. 鍋に水300mlと鶏ガラスープを入れて沸かす。<br>2. 豚肉と角切りトマトを入れて火を通す。<br>3. 溶き卵を回し入れ、火を止めて酢とラー油を加える。"
-      },
-
-      // ===== 血虚（栄養不足・カサカサ） =====
-      kyo_kan_kekkyo: { 
-        name: "レバーとほうれん草のガリバタ炒め", 
-        desc: "鉄分豊富なレバーとほうれん草で、不足した血を強力にチャージ！",
-        ingredients: "豚レバー（下処理済み）：100g<br>ほうれん草：1/2束<br>バター：10g<br>すりおろしニンニク：少々<br>醤油：小さじ1",
-        steps: "1. ほうれん草はざく切りにする。<br>2. フライパンにバターとニンニクを熱し、レバーをしっかり炒める。<br>3. ほうれん草を加えてサッと炒め、醤油で味を調える。"
-      },
-      kyo_netsu_kekkyo: { 
-        name: "豚肉とトマトのとろーりチーズ焼き", 
-        desc: "豚肉とチーズで潤いを与え、トマトで血を補う美容にも良い一品！",
-        ingredients: "豚バラ肉：100g<br>トマト：1個（スライス）<br>とろけるチーズ：たっぷり<br>塩こしょう：少々",
-        steps: "1. 耐熱皿に豚肉を並べて塩こしょうを振る。<br>2. その上にスライスしたトマトを乗せ、チーズをたっぷりかける。<br>3. トースターで豚肉に火が通るまで10分ほど焼く。"
-      },
-      jitsu_kan_kekkyo: { 
-        name: "牛肉とニラのスタミナもつ鍋風", 
-        desc: "牛肉とニラで体を芯から温め、栄養を隅々まで届けて血行を促進します！",
-        ingredients: "牛バラ肉：150g<br>ニラ：1/2束<br>キャベツ：2枚<br>鶏ガラスープの素・醤油：各小さじ1<br>ニンニクチューブ：2cm",
-        steps: "1. 小鍋に水200mlと調味料、ニンニクを入れて沸かす。<br>2. キャベツと牛肉を入れて煮る。<br>3. 最後に5cm幅に切ったニラをドサッと乗せてしんなりしたら完成！"
-      },
-      jitsu_netsu_kekkyo: { 
-        name: "アサリとほうれん草のペペロンチーノ", 
-        desc: "アサリで熱を冷ましつつ血を補う、貧血対策にもなるパスタ！",
-        ingredients: "パスタ：100g<br>アサリ水煮缶：1/2缶（汁ごと）<br>ほうれん草：1/4束<br>オリーブオイル：大さじ1<br>ニンニクチューブ：2cm",
-        steps: "1. パスタを茹でる（残り1分でほうれん草も入れて一緒に茹でる）。<br>2. フライパンにオイルとニンニクを熱し、アサリを汁ごと入れる。<br>3. 茹で上がったパスタとほうれん草を絡めて塩気を確認する。"
-      },
-
-      // ===== 瘀血（血行不良・ドロドロ） =====
-      kyo_kan_oketsu: { 
-        name: "サバ缶と玉ねぎの簡単アヒージョ", 
-        desc: "サバの青魚パワーと玉ねぎで体を温め、ドロドロになった血をサラサラに流します！",
-        ingredients: "サバの水煮缶：1缶（汁は捨てる）<br>玉ねぎ：1/4個（薄切り）<br>オリーブオイル：大さじ3<br>ニンニクチューブ：2cm<br>塩：少々",
-        steps: "1. 小さめのフライパンかスキレットに全材料を入れる。<br>2. 弱火にかけてグツグツ煮立つまで5分ほど加熱。<br>3. 玉ねぎがしんなりしたら完成！パンに乗せても美味しいです。"
-      },
-      kyo_netsu_oketsu: { 
-        name: "イカとトマトのガーリック炒め", 
-        desc: "イカで体のこわばりを和らげ、トマトで血を綺麗にして巡らせます！",
-        ingredients: "冷凍シーフードミックス（イカ多め）：100g<br>ミニトマト：5個（半分に切る）<br>オリーブオイル：大さじ1<br>ニンニク：少々",
-        steps: "1. シーフードミックスは解凍して水気を切る。<br>2. フライパンにオイルとニンニクを熱し、イカとトマトを炒める。<br>3. トマトが少し崩れてきたら塩こしょうで味を調える。"
-      },
-      jitsu_kan_oketsu: { 
-        name: "カツオのたたき 旨塩にんにくポン酢", 
-        desc: "カツオとニンニクの組み合わせで、滞った血行を強力に促進します！",
-        ingredients: "カツオのたたき（市販）：1パック<br>玉ねぎ（スライス）：適量<br>ポン酢：大さじ2<br>ごま油：小さじ1<br>すりおろしニンニク：少々",
-        steps: "1. 皿に玉ねぎスライスを敷き、カツオのたたきを乗せる。<br>2. ポン酢、ごま油、ニンニクを混ぜた特製ダレをかける。<br>3. 火を使わずに完成！血液サラサラの最強メニュー。"
-      },
-      jitsu_netsu_oketsu: { 
-        name: "豚肉とゴーヤの黒酢チャンプルー", 
-        desc: "黒酢で血を巡らせ、ゴーヤで熱を冷ますデトックスメニュー！",
-        ingredients: "豚バラ肉：80g<br>ゴーヤ：1/4本<br>卵：1個<br>黒酢（なければ普通の酢）：大さじ1<br>醤油：大さじ1",
-        steps: "1. ゴーヤは薄切りにして塩揉みし、水洗いする。<br>2. フライパンで豚肉とゴーヤを炒める。<br>3. 黒酢と醤油で味付けし、最後に溶き卵を回し入れて絡める。"
-      },
-
-      // ===== 水滞（むくみ・ポチャポチャ） =====
-      kyo_kan_suitai: { 
-        name: "鶏もも肉とかぼちゃのカレーチーズドリア", 
-        desc: "スパイスと鶏肉で体を温め、低下した水分代謝をグッと引き上げます！",
-        ingredients: "ご飯：お茶碗1杯<br>鶏もも肉：50g<br>冷凍かぼちゃ：2切れ<br>レトルトカレー：1/2袋<br>チーズ：適量",
-        steps: "1. 冷凍かぼちゃはレンジで解凍して一口大に切る。鶏肉も小さく切る。<br>2. 耐熱皿にご飯を敷き、鶏肉、かぼちゃ、カレーを乗せる。<br>3. チーズをかけ、トースターで鶏肉に火が通るまで10分ほど焼く。"
-      },
-      kyo_netsu_suitai: { 
-        name: "豚しゃぶとキュウリのピリ辛ごまダレ", 
-        desc: "キュウリで体内の余分な熱と水分をスッキリと排出させます！",
-        ingredients: "豚しゃぶ用肉：100g<br>キュウリ：1/2本（細切り）<br>ごまドレッシング：大さじ2<br>ラー油：少々",
-        steps: "1. 豚肉をサッと茹でて水気を切り、冷ます。<br>2. お皿に細切りキュウリを敷き、豚しゃぶを乗せる。<br>3. ごまドレッシングにラー油を混ぜて上からかける。"
-      },
-      jitsu_kan_suitai: { 
-        name: "牛肉とネギのすき焼き風うどん", 
-        desc: "ネギと牛肉で発汗を促し、冷えと頑固なむくみを撃退します！",
-        ingredients: "冷凍うどん：1玉<br>牛薄切り肉：80g<br>長ネギ：1/2本<br>めんつゆ（3倍濃縮）：大さじ3<br>水：250ml",
-        steps: "1. 小鍋に水とめんつゆを入れて沸かす。<br>2. 冷凍うどん、牛肉、斜め切りにしたネギを入れる。<br>3. うどんがほぐれ、具材に火が通ったら完成！"
-      },
-      jitsu_netsu_suitai: { 
-        name: "豚肉と春雨の旨辛麻婆豆腐", 
-        desc: "豆腐と春雨で余分な水分を吸い取り、体外へデトックスします！",
-        ingredients: "豚ひき肉（または豚コマ）：50g<br>豆腐：150g<br>春雨（乾燥）：10g<br>市販の麻婆豆腐の素：1人前",
-        steps: "1. フライパンで豚肉を炒める。<br>2. 麻婆豆腐の素と規定量の水を入れ、春雨もそのまま入れる。<br>3. 豆腐をちぎり入れ、春雨が柔らかくなるまで煮込む。"
-      }
+      kyo_kan_kikyo: [
+        { name: "鶏もも肉と長ネギのやみつき焼き鳥丼", desc: "鶏肉とネギで体を芯から温め、エネルギーをチャージする最強の組み合わせ！", ingredients: "米：1合<br>鶏もも肉：1/2枚<br>長ネギ：1/2本<br>醤油・みりん・酒：各大さじ1<br>砂糖：小さじ1", steps: "1. 炊飯器に米と調味料をすべて入れる。<br>2. 1合の目盛りまで水を足す。<br>3. 切った鶏肉とネギを乗せて炊飯。<br>4. 炊き上がったら全体を混ぜて完成！" },
+        { name: "牛肉と玉ねぎの生姜たっぷり牛丼", desc: "牛肉で気力を補い、生姜と玉ねぎで体を温めるスタミナ満点どんぶり！", ingredients: "牛薄切り肉：100g<br>玉ねぎ：1/2個<br>すりおろし生姜：たっぷり<br>めんつゆ：大さじ3", steps: "1. 鍋に水とめんつゆを入れて沸かす。<br>2. 玉ねぎを入れて煮る。<br>3. 柔らかくなったら牛肉と生姜を加え、火が通れば完成！" },
+        { name: "エビとブロッコリーのガリバタ炒め", desc: "エビの温熱作用で体をポカポカに！ニンニクの香りで食欲もアップ。", ingredients: "むきエビ：100g<br>ブロッコリー：1/2株<br>バター：10g<br>ニンニク：少々", steps: "1. ブロッコリーをレンジで加熱。<br>2. バターとニンニクでエビを炒める。<br>3. ブロッコリーを加えサッと炒める。" },
+        { name: "鶏もも肉とかぼちゃのチーズタッカルビ風", desc: "鶏肉とかぼちゃのダブル補気効果！チーズでまろやかに。", ingredients: "鶏もも肉：150g<br>かぼちゃ：100g<br>チーズ：適量", steps: "1. 鶏肉とかぼちゃに調味料を揉み込む。<br>2. 蒸し焼きにする。<br>3. チーズを入れて溶かす。" },
+        { name: "豚肉と長ネギの旨塩だれ炒め", desc: "長ネギの発汗作用で冷えを吹き飛ばす！", ingredients: "豚バラ肉：100g<br>長ネギ：1本<br>鶏ガラスープの素：小さじ1", steps: "1. 長ネギを斜め切りにする。<br>2. 豚肉を焼き、ネギを加える。<br>3. 調味料を入れて炒め合わせる。" },
+        { name: "鮭とキノコのバター醤油ホイル焼き", desc: "お腹を温める鮭と、気を補うキノコの最強タッグ。", ingredients: "生鮭：1切れ<br>しめじ：適量<br>バター：10g<br>醤油：小さじ1", steps: "1. ホイルに鮭とキノコを乗せる。<br>2. バターと醤油をかけ包む。<br>3. トースターで15分焼く。" },
+        { name: "牛肉とじゃがいものほくほく肉じゃが", desc: "じゃがいもでお腹の調子を整え気力をチャージ。", ingredients: "牛肉：100g<br>じゃがいも：2個<br>玉ねぎ：1/2個", steps: "1. 具材を切り、軽く炒める。<br>2. 水とめんつゆを入れて煮込む。" },
+        { name: "エビと卵のふわふわチリソース", desc: "体を温めるエビと栄養満点の卵でペロッと食べられる！", ingredients: "むきエビ：100g<br>卵：2個<br>ケチャップ：大さじ2", steps: "1. 卵を炒めて取り出す。<br>2. エビを炒め調味料を入れる。<br>3. 卵を戻し入れて絡める。" },
+        { name: "鶏そぼろと炒り卵の2色丼", desc: "胃腸に優しい鶏肉と卵。甘辛い味付けで食欲が湧く！", ingredients: "鶏ひき肉：100g<br>卵：2個<br>調味料：適量", steps: "1. 炒り卵を作る。<br>2. ひき肉を甘辛く炒める。<br>3. ご飯に乗せる。" },
+        { name: "牛すじとこんにゃくのネギポン酢", desc: "牛すじの栄養とネギの温め効果！", ingredients: "牛すじ煮込み：1パック<br>こんにゃく：1/2枚<br>ネギ：適量", steps: "1. こんにゃくを下茹でする。<br>2. 牛すじとこんにゃくを温める。<br>3. ネギとポン酢をかける。" }
+      ],
+      kyo_netsu_kikyo: [
+        { name: "豚肉と山芋のふわとろお好み焼き", desc: "山芋で胃腸を優しく潤し、豚肉で疲労回復。美味しく気を補います！", ingredients: "山芋：150g<br>卵：1個<br>豚バラ肉：3枚", steps: "1. 山芋、卵、キャベツを混ぜる。<br>2. 豚肉を焼き上に生地を流す。<br>3. 両面を焼く。" },
+        { name: "鶏むね肉とセロリの塩レモン炒め", desc: "セロリとレモンでこもった熱をスーッと冷ましサッパリ栄養補給！", ingredients: "鶏むね肉：150g<br>セロリ：1/2本<br>レモン汁：大さじ1", steps: "1. 鶏肉とセロリを切る。<br>2. 鶏肉を炒める。<br>3. セロリと調味料で炒め合わせる。" },
+        { name: "豆腐と豚しゃぶの梅ごまサラダ", desc: "豆腐で熱を冷まし、梅の酸味で胃腸をシャキッとさせます。", ingredients: "豚しゃぶ用肉：100g<br>豆腐：150g<br>梅干し：1個", steps: "1. 豚肉を茹でて冷ます。<br>2. 豆腐と野菜の上に豚肉を乗せる。<br>3. 梅ごまダレをかける。" },
+        { name: "タラと白菜のあっさり豆乳スープ", desc: "白身魚と豆乳で体に潤いを与え、乾燥やほてりを防ぐ。", ingredients: "生タラ：1切れ<br>白菜：2枚<br>豆乳：150ml", steps: "1. タラと白菜を切る。<br>2. 水で白菜を煮る。<br>3. タラと豆乳を加え温める。" },
+        { name: "豚肉とトマトの酸辣湯風麺", desc: "トマトの酸味で熱を冷まし、お酢の力で疲労回復！", ingredients: "豚肉：50g<br>トマト：1/2個<br>酢：大さじ1", steps: "1. 豚肉とトマトをスープで煮る。<br>2. 卵を回し入れ、酢を加える。<br>3. 麺にかける。" },
+        { name: "山芋とオクラのネバネバまぐろ丼", desc: "ネバネバ食材で胃腸を保護し気力を養う。", ingredients: "まぐろ：100g<br>山芋：適量<br>オクラ：2本", steps: "1. オクラを茹でて切る。<br>2. ご飯の上に具材を乗せる。<br>3. わさび醤油をかける。" },
+        { name: "鶏ささみと梅干しのさっぱり和え", desc: "高タンパク低カロリー！梅のクエン酸がお疲れに効く。", ingredients: "ささみ：2本<br>きゅうり：1/2本<br>梅干し：1個", steps: "1. ささみを加熱してほぐす。<br>2. きゅうりを切る。<br>3. すべてをポン酢で和える。" },
+        { name: "アサリとキャベツの酒蒸し", desc: "アサリは熱を冷ます名選手。キャベツの甘みと相性抜群！", ingredients: "アサリ：150g<br>キャベツ：2枚<br>酒：大さじ2", steps: "1. フライパンにキャベツとアサリを入れる。<br>2. 酒を振り蒸し焼きにする。<br>3. バターを絡める。" },
+        { name: "豚肉とレンコンの甘酢炒め", desc: "レンコンで喉や肌を潤し、お酢のサッパリ感で食欲刺激。", ingredients: "豚バラ肉：100g<br>レンコン：100g<br>酢：大さじ1", steps: "1. レンコンを薄切りにする。<br>2. 豚肉とレンコンを炒める。<br>3. 調味料を絡めて照りを出す。" },
+        { name: "豆腐ハンバーグ きのこおろしポン酢", desc: "お肉を減らし豆腐でカサ増し。胃腸への負担を減らす！", ingredients: "鶏ひき肉：100g<br>豆腐：100g<br>大根おろし：適量", steps: "1. 豆腐と肉を混ぜて焼く。<br>2. しめじを炒める。<br>3. 大根おろしとポン酢をかける。" }
+      ],
+      jitsu_kan_kikyo: [
+        { name: "牛肉とニンニクのガッツリスタミナ焼肉", desc: "牛肉とニンニクで冷えを吹き飛ばし活力を生み出す！", ingredients: "牛肉：150g<br>玉ねぎ：1/4個<br>ニンニク：適量", steps: "1. ニンニクと油を熱する。<br>2. 牛肉と玉ねぎを炒める。<br>3. 焼肉のタレを絡める。" },
+        { name: "鶏もも肉と長ネギのピリ辛味噌炒め", desc: "ネギとピリ辛味噌で発汗を促しエネルギーチャージ！", ingredients: "鶏肉：150g<br>長ネギ：1本<br>味噌・豆板醤：適量", steps: "1. 鶏肉とネギを切る。<br>2. 鶏肉をこんがり焼く。<br>3. ネギと調味料を加えて炒める。" },
+        { name: "ラム肉と玉ねぎのクミン炒め", desc: "体を温める力No.1のラム肉！クミンの香りで食欲倍増。", ingredients: "ラム肉：150g<br>玉ねぎ：1/2個<br>クミン：少々", steps: "1. ラム肉と玉ねぎを炒める。<br>2. クミンと塩こしょうを振る。<br>3. 醤油を回し入れる。" },
+        { name: "牛肉とニラのスタミナもつ鍋風", desc: "ニラの温熱効果と牛肉のパワーで体ポカポカ！", ingredients: "牛バラ肉：150g<br>ニラ：1/2束<br>キャベツ：2枚", steps: "1. スープを沸かしキャベツと肉を煮る。<br>2. ニラをドサッと乗せる。<br>3. しんなりしたら完成。" },
+        { name: "豚バラとキムチの豚キムチ丼", desc: "キムチの辛味と豚肉の脂で胃腸から力強く温める。", ingredients: "豚バラ肉：100g<br>キムチ：50g<br>ごま油：適量", steps: "1. 豚肉をごま油で炒める。<br>2. キムチを加えて炒める。<br>3. ご飯に乗せる。" },
+        { name: "エビとブロッコリーのガリバタ炒め", desc: "エビは体を温め気力を補う優秀食材！", ingredients: "エビ：100g<br>ブロッコリー：1/2株<br>バター・ニンニク：適量", steps: "1. ブロッコリーを加熱。<br>2. エビをバターニンニクで炒める。<br>3. ブロッコリーを加える。" },
+        { name: "鶏の唐揚げ ねぎ塩生姜ダレ", desc: "唐揚げに体を温めるネギと生姜の特製ダレを！", ingredients: "唐揚げ：5個<br>ネギ・生姜：適量", steps: "1. 唐揚げを温める。<br>2. ネギ、生姜、ごま油でタレを作る。<br>3. 唐揚げにかける。" },
+        { name: "牛すじとこんにゃくのピリ辛煮", desc: "牛すじの旨みと唐辛子で体の芯から熱を生み出す。", ingredients: "牛すじ煮込み：1パック<br>こんにゃく：1/2枚<br>一味：適量", steps: "1. こんにゃくを下茹で。<br>2. 牛すじと煮込む。<br>3. ネギと一味をかける。" },
+        { name: "鶏むね肉のガーリックバター醤油ステーキ", desc: "淡白なむね肉もガリバタ醤油でスタミナおかずに！", ingredients: "鶏むね肉：1枚<br>バター・ニンニク・醤油：適量", steps: "1. 鶏肉をそぎ切りにし粉を振って焼く。<br>2. バターと調味料を絡める。" },
+        { name: "牛肉とニンニクの芽のオイスター炒め", desc: "ニンニクの芽は体を温める作用が抜群！", ingredients: "牛肉：100g<br>ニンニクの芽：1束<br>オイスターソース：大さじ1", steps: "1. ニンニクの芽を切る。<br>2. 牛肉を炒める。<br>3. ニンニクの芽と調味料を加える。" }
+      ],
+      jitsu_netsu_kikyo: [
+        { name: "豚しゃぶとトマトの冷製塩レモンうどん", desc: "トマトとレモンで体の熱を急冷しスタミナ補給。", ingredients: "うどん：1玉<br>豚しゃぶ肉：80g<br>トマト：1個", steps: "1. うどんと豚肉を茹でて冷ます。<br>2. トマトと調味料を混ぜる。<br>3. すべてを和える。" },
+        { name: "鶏むね肉とキュウリの棒々鶏", desc: "キュウリのクールダウン効果と高タンパク鶏肉！", ingredients: "鶏むね肉：150g<br>キュウリ：1本<br>ごまダレ：適量", steps: "1. 鶏肉を加熱し裂く。<br>2. キュウリを千切りにする。<br>3. タレをかける。" },
+        { name: "豆腐と豚ひき肉の塩麻婆豆腐", desc: "辛くない麻婆豆腐！豆腐が熱を冷まし胃腸に優しい。", ingredients: "豆腐：150g<br>豚ひき肉：50g<br>ネギ：適量", steps: "1. ひき肉とネギを炒めスープを入れる。<br>2. 豆腐を加える。<br>3. とろみをつける。" },
+        { name: "鮭とレモンのさっぱりホイル焼き", desc: "鮭でお腹を整え、レモンの酸味で熱をリフレッシュ！", ingredients: "鮭：1切れ<br>レモン：2枚<br>玉ねぎ：適量", steps: "1. ホイルに具材を乗せる。<br>2. オリーブオイルをかけ包む。<br>3. トースターで焼く。" },
+        { name: "アサリとキャベツの塩バターパスタ", desc: "アサリは熱を冷ます大名人！", ingredients: "パスタ：100g<br>アサリ缶：1/2缶<br>キャベツ：2枚", steps: "1. パスタとキャベツを茹でる。<br>2. アサリをバターで炒める。<br>3. パスタを絡める。" },
+        { name: "豚肉とセロリの塩昆布炒め", desc: "セロリの香りで熱とストレスを下げ、豚肉で疲労回復！", ingredients: "豚肉：100g<br>セロリ：1/2本<br>塩昆布：大さじ1", steps: "1. セロリを切る。<br>2. 豚肉を炒める。<br>3. セロリと塩昆布を加える。" },
+        { name: "トマトと卵の中華風ふわとろ炒め", desc: "熱を冷ましつつ潤いとスタミナを補給。", ingredients: "トマト：1個<br>卵：2個<br>ごま油：適量", steps: "1. トマトを切る。<br>2. 卵を炒め取り出す。<br>3. トマトを炒め卵を戻す。" },
+        { name: "さっぱり梅しそ豚しゃぶ丼", desc: "梅と大葉の香りで爽やかに気を巡らせます。", ingredients: "豚肉：100g<br>大葉・梅干し：適量<br>ご飯：1杯", steps: "1. 豚肉を茹でて冷ます。<br>2. 梅ポン酢で和える。<br>3. ご飯に乗せる。" },
+        { name: "イカとアスパラの塩炒め", desc: "イカにはこわばった筋肉を和らげ熱を冷ます効果が。", ingredients: "イカ：100g<br>アスパラ：3本<br>鶏ガラスープ：適量", steps: "1. アスパラを加熱。<br>2. イカとアスパラを炒める。<br>3. 調味料で味付け。" },
+        { name: "豚ヒレ肉のさっぱり黒酢ねぎダレ", desc: "ヒレ肉で胃もたれ防止。黒酢がこもった熱を改善！", ingredients: "豚ヒレ肉：100g<br>長ネギ・黒酢：適量", steps: "1. 豚肉を焼く。<br>2. 黒酢ねぎダレを作る。<br>3. タレをかける。" }
+      ],
+      kyo_kan_kigyaku: [
+        { name: "豚バラ大根のミルフィーユ鍋", desc: "大根と生姜で逆流した気を降ろし、胃を温める！", ingredients: "豚バラ肉：150g<br>大根：1/4本<br>生姜：適量", steps: "1. 豚肉と大根を重ねる。<br>2. 生姜を散らしレンジで加熱。<br>3. ポン酢で食べる。" },
+        { name: "鶏もも肉とカブのみぞれ煮", desc: "カブと大根おろしでイライラを鎮める。", ingredients: "鶏肉：150g<br>カブ：1個<br>大根おろし：適量", steps: "1. 鶏肉とカブを煮る。<br>2. 柔らかくなったら大根おろしを加える。" },
+        { name: "豚肉と玉ねぎの生姜焼き丼", desc: "生姜焼きは気逆の特効薬！胃のムカムカを抑える。", ingredients: "豚肉：150g<br>玉ねぎ：1/2個<br>生姜：適量", steps: "1. 豚肉と玉ねぎを炒める。<br>2. 生姜ダレを絡める。<br>3. ご飯に乗せる。" },
+        { name: "牛すじと大根の煮込み", desc: "大根で気を降ろし牛すじでスタミナ補給。", ingredients: "牛すじ煮込み：1パック<br>大根：1/4本", steps: "1. 大根をレンジで加熱。<br>2. 牛すじと煮込む。" },
+        { name: "鮭とキャベツのちゃんちゃん焼き", desc: "お腹を温め、胃腸薬の役割のキャベツでホッと。", ingredients: "鮭：1切れ<br>キャベツ：2枚<br>味噌・バター：適量", steps: "1. ホイルに具材を乗せる。<br>2. 味噌とバターを乗せ焼く。" },
+        { name: "鶏ひき肉とレンコンのつくね", desc: "レンコンでのぼせを解消！", ingredients: "鶏ひき肉：150g<br>レンコン：50g<br>卵：1個", steps: "1. 材料を練って丸める。<br>2. 焼いて照り焼きダレを絡める。" },
+        { name: "生姜たっぷり豚汁うどん", desc: "消化のいいうどんと生姜で胃腸を労わる。", ingredients: "うどん：1玉<br>豚汁の具：1袋<br>生姜・味噌：適量", steps: "1. 具材を煮る。<br>2. うどんを加える。<br>3. 味噌と生姜を溶く。" },
+        { name: "鶏もも肉と長ネギの柚子胡椒炒め", desc: "柚子の香りが気を降ろし、ネギが体を温める！", ingredients: "鶏肉：150g<br>長ネギ：1本<br>柚子胡椒：適量", steps: "1. 鶏肉とネギを炒める。<br>2. 柚子胡椒を絡める。" },
+        { name: "えびと白菜のトロトロ中華煮", desc: "えびで温め白菜で胃腸に優しく。", ingredients: "えび：80g<br>白菜：2枚", steps: "1. 白菜とえびをスープで煮る。<br>2. とろみをつける。" },
+        { name: "牛肉とごぼうのしぐれ煮丼", desc: "ごぼうが気を降ろし牛肉が気力を養う！", ingredients: "牛肉：100g<br>ごぼう：1/2本<br>生姜：適量", steps: "1. ごぼうをささがきにする。<br>2. 牛肉と甘辛く煮る。<br>3. ご飯に乗せる。" }
+      ],
+      kyo_netsu_kigyaku: [
+        { name: "牡蠣と白菜のクリームシチュー", desc: "牡蠣と牛乳で潤いを与え、のぼせを鎮める！", ingredients: "牡蠣：100g<br>白菜：2枚<br>牛乳：100ml", steps: "1. 白菜を炒め牛乳と水で煮る。<br>2. ルーを溶かし牡蠣を入れる。" },
+        { name: "豚しゃぶとセロリの塩レモン和え", desc: "セロリでイライラを鎮め豚肉で疲労回復！", ingredients: "豚肉：100g<br>セロリ：1/2本<br>レモン汁：適量", steps: "1. 豚肉を茹でて冷ます。<br>2. セロリと調味料で和える。" },
+        { name: "豆腐とカニカマの中華卵とじ", desc: "豆腐がこもった熱を冷まし卵で体力を補強！", ingredients: "豆腐：150g<br>カニカマ：4本<br>卵：1個", steps: "1. スープで豆腐とカニカマを煮る。<br>2. とろみをつけ卵でとじる。" },
+        { name: "豚肉とトマトのとろとろ卵炒め", desc: "トマトで熱を冷まし潤いをチャージ！", ingredients: "豚肉：80g<br>トマト：1個<br>卵：2個", steps: "1. 卵を炒め取り出す。<br>2. 豚肉とトマトを炒める。<br>3. 卵を戻す。" },
+        { name: "アサリとキャベツの酒蒸し", desc: "アサリは熱を冷ます薬膳の優等生！", ingredients: "アサリ：150g<br>キャベツ：2枚<br>酒：適量", steps: "1. フライパンにキャベツとアサリを入れる。<br>2. 酒で蒸す。" },
+        { name: "鶏むね肉とキュウリの梅和え", desc: "キュウリで熱を逃がし梅で気を降ろす。", ingredients: "鶏むね肉：1/2枚<br>キュウリ：1本<br>梅干し：1個", steps: "1. 鶏肉を加熱し裂く。<br>2. キュウリと梅ポン酢で和える。" },
+        { name: "冷やし豆乳坦々うどん", desc: "豆乳が体を潤す！辛さ控えめの冷やし麺。", ingredients: "うどん：1玉<br>ひき肉：50g<br>豆乳・ごま：適量", steps: "1. ひき肉を炒める。<br>2. うどんを冷やす。<br>3. 豆乳ダレと肉を乗せる。" },
+        { name: "豚肉とレンコンの塩炒め", desc: "レンコンは空咳に効く潤い食材！", ingredients: "豚肉：100g<br>レンコン：100g", steps: "1. レンコンを薄切りにする。<br>2. 豚肉とレンコンを炒める。<br>3. 塩だれで味付け。" },
+        { name: "イカとチンゲン菜のオイスター炒め", desc: "イカは熱を冷ましこわばった筋肉を和らげる。", ingredients: "イカ：100g<br>チンゲン菜：1株", steps: "1. チンゲン菜を切る。<br>2. イカと炒めオイスターソースを絡める。" },
+        { name: "鶏ささみと冬瓜のスープ", desc: "冬瓜は熱をスッキリ冷ます天才！", ingredients: "ささみ：2本<br>冬瓜：150g", steps: "1. 冬瓜を柔らかくなるまで煮る。<br>2. ささみを加え火を通す。" }
+      ],
+      jitsu_kan_kigyaku: [
+        { name: "牛肉と長ネギのピリ辛すき煮", desc: "温かいネギとピリ辛味で気を下へ流す！", ingredients: "牛肉：100g<br>長ネギ：1本<br>一味：適量", steps: "1. ネギを切る。<br>2. めんつゆで牛肉と煮る。<br>3. 一味を振る。" },
+        { name: "豚バラ肉とネギの生姜焼き", desc: "ネギと生姜の強力な温め効果で気逆を防ぐ！", ingredients: "豚バラ肉：150g<br>長ネギ：1本<br>生姜：適量", steps: "1. 豚肉とネギを焼く。<br>2. 生姜ダレを絡める。" },
+        { name: "ラム肉と玉ねぎのジンギスカン風", desc: "ラム肉で体を温め、玉ねぎでストレス発散。", ingredients: "ラム肉：150g<br>玉ねぎ：1/2個", steps: "1. 肉と玉ねぎを炒める。<br>2. 焼肉のタレを絡める。" },
+        { name: "鶏もも肉とカブのそぼろ煮", desc: "カブは上に昇った気をスッと降ろす名選手。", ingredients: "鶏ひき肉：100g<br>カブ：2個", steps: "1. ひき肉とカブを煮る。<br>2. とろみをつける。" },
+        { name: "牛カルビのガーリックペッパー焼き", desc: "ニンニクと黒こしょうの刺激で気を降ろす！", ingredients: "牛カルビ：150g<br>ニンニク・黒こしょう：たっぷり", steps: "1. ニンニクと肉を強火で焼く。<br>2. 醤油とこしょうを振る。" },
+        { name: "豚キムチの温玉のせ丼", desc: "キムチの辛味で胃腸から力強く温め直す。", ingredients: "豚肉：100g<br>キムチ：50g<br>温玉：1個", steps: "1. 豚肉とキムチを炒める。<br>2. ご飯に乗せ温玉を落とす。" },
+        { name: "鶏肉と根菜のピリ辛味噌煮込み", desc: "根菜でお腹を温め、味噌と豆板醤でガッツリ。", ingredients: "鶏肉：150g<br>大根・人参：各50g<br>味噌・豆板醤：適量", steps: "1. 根菜をレンジ加熱。<br>2. 鶏肉と根菜を味噌ダレで煮込む。" },
+        { name: "牛肉とニンニクの芽のスタミナ炒め", desc: "ニンニクの芽で体を温め気逆をストップ。", ingredients: "牛肉：100g<br>ニンニクの芽：1束", steps: "1. ニンニクの芽を切る。<br>2. 牛肉と炒めオイスターソースを絡める。" },
+        { name: "鮭とキノコの生姜バターホイル焼き", desc: "生姜のピリッとしたアクセントで温める！", ingredients: "鮭：1切れ<br>しめじ：適量<br>生姜・バター：適量", steps: "1. ホイルに具材を乗せる。<br>2. 生姜バター醤油をかけ焼く。" },
+        { name: "豚肉とニラのもつ鍋風", desc: "ニラの温熱効果と豚肉で一気にポカポカに！", ingredients: "豚肉：150g<br>ニラ：1/2束<br>キャベツ：2枚", steps: "1. キャベツと肉をスープで煮る。<br>2. ニラを乗せて完成。" }
+      ],
+      jitsu_netsu_kigyaku: [
+        { name: "豚肉とセロリの塩昆布炒め", desc: "セロリは上に昇った気を強力に降ろす特効薬！", ingredients: "豚肉：100g<br>セロリ：1/2本<br>塩昆布：大さじ1", steps: "1. セロリを切る。<br>2. 豚肉を炒める。<br>3. セロリと塩昆布を加える。" },
+        { name: "トマトと卵の中華風炒め", desc: "トマトの酸味で過剰な熱を冷ます最強コンビ！", ingredients: "トマト：1個<br>卵：2個", steps: "1. 卵を炒め取り出す。<br>2. トマトを炒め卵を戻す。" },
+        { name: "ゴーヤと豚肉の塩チャンプルー", desc: "ゴーヤの苦味が熱を急激に冷まして鎮静化！", ingredients: "ゴーヤ：1/4本<br>豚肉：80g<br>卵：1個", steps: "1. ゴーヤを塩揉み。<br>2. 肉とゴーヤを炒める。<br>3. 卵でとじる。" },
+        { name: "豆腐ハンバーグ おろしポン酢", desc: "大根おろしが気を降ろし豆腐で熱を冷ます。", ingredients: "鶏ひき肉：100g<br>豆腐：100g<br>大根おろし：適量", steps: "1. 豆腐と肉を混ぜて焼く。<br>2. 大根おろしポン酢をかける。" },
+        { name: "豚しゃぶとトマトの冷製うどん", desc: "レモンの酸味がストレスを吹き飛ばします。", ingredients: "うどん：1玉<br>豚肉：80g<br>トマト：1個", steps: "1. うどんと肉を冷やす。<br>2. トマトと塩レモンだれで和える。" },
+        { name: "アサリとキャベツのバターパスタ", desc: "アサリは熱を冷まして心を落ち着かせる名選手。", ingredients: "パスタ：100g<br>アサリ缶：1/2缶<br>キャベツ：2枚", steps: "1. パスタとキャベツを茹でる。<br>2. アサリを炒めパスタを絡める。" },
+        { name: "イカとセロリの塩炒め", desc: "筋肉を和らげ、セロリと合わせてストレス撃退！", ingredients: "イカ：100g<br>セロリ：1/2本", steps: "1. セロリを切る。<br>2. イカと炒め塩だれを絡める。" },
+        { name: "豚バラとナスのポン酢炒め", desc: "ナスは熱を冷ます夏野菜の王様！", ingredients: "豚肉：100g<br>ナス：1本<br>ポン酢：大さじ2", steps: "1. ナスと肉を炒める。<br>2. ポン酢を絡める。" },
+        { name: "鶏むね肉とキュウリの棒々鶏", desc: "キュウリと鶏むね肉で火照った体を冷やします。", ingredients: "鶏肉：150g<br>キュウリ：1本<br>ごまダレ：適量", steps: "1. 鶏肉を加熱し裂く。<br>2. キュウリと盛りタレをかける。" },
+        { name: "もやしと豚肉の梅ポン酢蒸し", desc: "もやしはデトックス食材。梅の酸味がイライラを鎮める！", ingredients: "豚肉：100g<br>もやし：1袋<br>梅干し：1個", steps: "1. もやしと肉をレンジで蒸す。<br>2. 梅ポン酢をかける。" }
+      ],
+      kyo_kan_kitai: [
+        { name: "鶏肉と玉ねぎの生姜焼き", desc: "玉ねぎの香りで冷えて滞った気をパッと発散！", ingredients: "鶏肉：150g<br>玉ねぎ：1/2個<br>生姜：適量", steps: "1. 鶏肉と玉ねぎを炒める。<br>2. 生姜ダレを絡める。" },
+        { name: "豚バラ肉の梅しそくるくる巻き", desc: "シソの香りと梅の酸味がストレスを吹き飛ばす！", ingredients: "豚肉：6枚<br>大葉：6枚<br>梅干し：2個", steps: "1. 肉で大葉と梅を巻く。<br>2. 焼いてポン酢をかける。" },
+        { name: "サバ缶と玉ねぎのカレーマヨ焼き", desc: "カレー粉の香りが気を巡らせ体を温める。", ingredients: "サバ缶：1缶<br>玉ねぎ：1/4個<br>カレー粉・マヨネーズ：適量", steps: "1. サバと玉ねぎにカレーマヨを塗る。<br>2. トースターで焼く。" },
+        { name: "鶏もも肉の柚子胡椒焼き", desc: "柚子の香りが気を動かし、胡椒が胃腸を温める。", ingredients: "鶏肉：1枚<br>柚子胡椒：適量", steps: "1. 鶏肉に柚子胡椒を揉み込む。<br>2. こんがり焼く。" },
+        { name: "牛肉とセロリの生姜炒め", desc: "セロリはストレス解消の特効薬！生姜で冷えブロック。", ingredients: "牛肉：100g<br>セロリ：1/2本<br>生姜：適量", steps: "1. セロリを切る。<br>2. 牛肉と生姜を炒める。<br>3. セロリとオイスターソースを加える。" },
+        { name: "鮭とキノコのホイル焼き レモン添え", desc: "レモンの香りでリフレッシュ！癒やしメニュー。", ingredients: "鮭：1切れ<br>しめじ：適量<br>レモン：1枚", steps: "1. 鮭とキノコをホイルで包んで焼く。<br>2. レモンを絞る。" },
+        { name: "エビとブロッコリーのガリバタレモン", desc: "エビとニンニクで元気爆発！レモンの酸味でサッパリ。", ingredients: "エビ：100g<br>ブロッコリー：1/2株<br>レモン汁・バター：適量", steps: "1. ブロッコリーを加熱。<br>2. エビをバターで炒める。<br>3. レモン汁で仕上げる。" },
+        { name: "鶏むね肉の青のりチーズ焼き", desc: "磯の香りが気を巡らせるヘルシーおかず。", ingredients: "鶏肉：1枚<br>青のり・チーズ・マヨ：適量", steps: "1. 鶏肉にマヨを塗る。<br>2. 青のりチーズをまぶして焼く。" },
+        { name: "豚肉とピーマンのオイスター炒め", desc: "ピーマンの香りは気の巡りを良くします！", ingredients: "豚肉：100g<br>ピーマン：3個", steps: "1. ピーマンを細切りにする。<br>2. 肉と炒めオイスターソースを絡める。" },
+        { name: "さつまいもと豚肉の甘酢炒め", desc: "お酢の酸味がストレスで張ったお腹をスッキリさせる。", ingredients: "豚肉：100g<br>さつまいも：小1/2本<br>酢・醤油：各適量", steps: "1. さつまいもをレンジ加熱。<br>2. 肉と炒め甘酢を絡める。" }
+      ],
+      kyo_netsu_kitai: [
+        { name: "豚しゃぶとセロリの塩レモン和え", desc: "セロリの香りでイライラを鎮めレモンでサッパリ！", ingredients: "豚肉：100g<br>セロリ：1/2本<br>レモン汁：適量", steps: "1. 豚肉を茹でる。<br>2. セロリとレモンだれで和える。" },
+        { name: "サバ缶の梅おろし和え", desc: "大根おろしと梅の酸味でリラックス効果バツグン！", ingredients: "サバ缶：1缶<br>大根おろし・梅干し：適量", steps: "1. サバ缶に大根おろしと梅を乗せる。<br>2. ポン酢をかける。" },
+        { name: "豚肉とキャベツの柚子胡椒蒸し", desc: "柚子の香りが気を巡らせ、豚肉が優しく潤す。", ingredients: "豚肉：100g<br>キャベツ：2枚<br>柚子胡椒ポン酢：適量", steps: "1. キャベツと肉を蒸す。<br>2. 柚子ポン酢で食べる。" },
+        { name: "鶏むね肉の梅しそチーズ焼き", desc: "梅の酸味としその香りが気の巡りを良くする！", ingredients: "鶏むね肉：1枚<br>大葉・梅干し・チーズ：適量", steps: "1. 鶏肉を焼き梅を塗る。<br>2. 大葉とチーズを乗せ溶かす。" },
+        { name: "トマトと卵の中華風ふわとろ炒め", desc: "トマトの酸味で熱を冷まし卵で体力を補う！", ingredients: "トマト：1個<br>卵：2個", steps: "1. 卵を炒め取り出す。<br>2. トマトを炒め卵を戻す。" },
+        { name: "鶏肉と生姜のカオマンガイ風", desc: "生姜の香りでストレスを発散させる炊き込みご飯。", ingredients: "米：1合<br>鶏肉：1/2枚<br>生姜：大さじ1", steps: "1. 炊飯器に米、生姜、スープの素を入れる。<br>2. 鶏肉を乗せて炊飯。" },
+        { name: "イカとセロリのあっさり塩炒め", desc: "イカで筋肉を和らげ、セロリでストレス撃退！", ingredients: "イカ：100g<br>セロリ：1/2本", steps: "1. セロリを切る。<br>2. イカと炒め塩だれを絡める。" },
+        { name: "豚肉とレンコンの塩レモン炒め", desc: "レンコンで胸のつかえを取りレモンでサッパリ！", ingredients: "豚肉：100g<br>レンコン：100g<br>レモン汁：適量", steps: "1. レンコンを薄切りにする。<br>2. 肉と炒めレモン塩だれを絡める。" },
+        { name: "豆腐ハンバーグ おろしポン酢", desc: "大根おろしが気を降ろし豆腐で熱を冷ます。", ingredients: "鶏ひき肉：100g<br>豆腐：100g<br>大根おろし：適量", steps: "1. 豆腐と肉を混ぜて焼く。<br>2. 大根おろしポン酢をかける。" },
+        { name: "鶏むね肉とキュウリの叩き梅和え", desc: "キュウリで熱を逃がし梅の酸味で気を降ろす。", ingredients: "鶏むね肉：1/2枚<br>キュウリ：1本<br>梅干し：1個", steps: "1. 鶏肉を加熱し裂く。<br>2. キュウリと梅で和える。" }
+      ],
+      jitsu_kan_kitai: [
+        { name: "牛肉と玉ねぎのガリバタ醤油炒め", desc: "牛肉とニンニクで体を温め、玉ねぎの香りでストレス発散！", ingredients: "牛肉：150g<br>玉ねぎ：1/2個<br>ニンニク・バター：適量", steps: "1. 玉ねぎを切る。<br>2. 牛肉とガリバタ醤油で炒める。" },
+        { name: "ラム肉とセロリのクミン炒め", desc: "セロリとクミンの香りがガチガチの緊張をほぐす。", ingredients: "ラム肉：150g<br>セロリ：1/2本<br>クミン：適量", steps: "1. ラム肉とセロリを炒める。<br>2. クミンと醤油を絡める。" },
+        { name: "鶏もも肉と長ネギの柚子胡椒焼き", desc: "柚子の香りが気を動かし、ネギと胡椒が温める。", ingredients: "鶏もも肉：1枚<br>長ネギ：1本<br>柚子胡椒：適量", steps: "1. 鶏肉に柚子胡椒を揉み込む。<br>2. ネギと一緒に焼く。" },
+        { name: "豚バラ肉とピーマンのカレー炒め", desc: "カレー粉のスパイスとピーマンの香りで気分をスカッと！", ingredients: "豚肉：100g<br>ピーマン：3個<br>カレー粉：適量", steps: "1. ピーマンを切る。<br>2. 肉と炒めカレー粉を絡める。" },
+        { name: "牛肉と生姜の炊き込みご飯", desc: "生姜のパワーで冷えを撃退し気力を養う。", ingredients: "米：1.5合<br>牛肉：100g<br>生姜：大さじ1", steps: "1. 牛肉に下味と生姜を揉み込む。<br>2. 炊飯器に入れて炊く。" },
+        { name: "鮭と玉ねぎのマスタードマヨ焼き", desc: "マスタードの刺激をプラスして気を巡らせます。", ingredients: "鮭：1切れ<br>玉ねぎ：1/4個<br>マスタード・マヨ：適量", steps: "1. 玉ねぎと鮭を皿に乗せる。<br>2. マヨマスタードを塗り焼く。" },
+        { name: "エビとニンニクの芽のピリ辛炒め", desc: "ダブル温熱効果！ピリ辛味が食欲をそそる。", ingredients: "エビ：100g<br>ニンニクの芽：1束<br>豆板醤：適量", steps: "1. ニンニクの芽を切る。<br>2. エビと豆板醤で炒める。" },
+        { name: "鶏肉とカブの生姜スープカレー", desc: "カブでガス張りを解消しスパイスで血行を促す！", ingredients: "鶏肉：150g<br>カブ：1個<br>カレールー：1かけ", steps: "1. 鶏肉とカブを水で煮る。<br>2. ルーを溶かし煮込む。" },
+        { name: "牛すじとこんにゃくのネギだく煮", desc: "ネギの香りが気滞を解消！冷え切った体も大喜び。", ingredients: "牛すじ：1パック<br>こんにゃく：1/2枚<br>ネギ：たっぷり", steps: "1. こんにゃくを下茹で。<br>2. 牛すじと煮込みネギをかける。" },
+        { name: "豚肉とニラのスタミナキムチ炒め", desc: "お腹の中から熱を作ってストレスを燃やし尽くす。", ingredients: "豚肉：100g<br>ニラ：1/2束<br>キムチ：50g", steps: "1. 豚肉とキムチを炒める。<br>2. ニラを加えサッと炒める。" }
+      ],
+      jitsu_netsu_kitai: [
+        { name: "豚しゃぶとセロリのレモンマリネ", desc: "セロリとレモンの香りでストレスを吹き飛ばす！", ingredients: "豚肉：100g<br>セロリ：1/2本<br>レモン汁：適量", steps: "1. 豚肉を茹でる。<br>2. セロリとレモンだれで和える。" },
+        { name: "鶏むね肉と大葉のチーズ焼き", desc: "大葉の香りが気を巡らせ、胸肉でヘルシーに熱を冷ます。", ingredients: "鶏むね肉：1枚<br>大葉：5枚<br>チーズ：適量", steps: "1. 鶏肉を焼き大葉を乗せる。<br>2. チーズを乗せ溶かす。" },
+        { name: "豚バラとナスの香味ダレ", desc: "ナスが熱を冷まし、ネギの香りで気分爽快！", ingredients: "豚肉：100g<br>ナス：1本<br>香味ダレ：適量", steps: "1. ナスと豚肉を蒸す。<br>2. ポン酢とネギのタレをかける。" },
+        { name: "トマトと豚肉の酸辣湯風スープ", desc: "トマトの酸味で熱を冷まし、お酢でドロドロをサラサラに！", ingredients: "豚肉：50g<br>トマト：1個<br>酢・卵：適量", steps: "1. 豚肉とトマトをスープで煮る。<br>2. 卵と酢を入れる。" },
+        { name: "鶏肉とトマトの丸ごと炊き込みご飯", desc: "トマトの酸味がストレスで張ったお腹をスッキリ。", ingredients: "米：1.5合<br>鶏肉：100g<br>トマト：1個", steps: "1. 炊飯器に米とコンソメを入れる。<br>2. トマトを丸ごと乗せ炊く。" },
+        { name: "イカとチンゲン菜の塩レモン炒め", desc: "イカで熱を冷まし、レモンの香りで滞った気を流す。", ingredients: "イカ：100g<br>チンゲン菜：1株<br>レモン汁：適量", steps: "1. チンゲン菜を切る。<br>2. イカと炒め塩レモンだれを絡める。" },
+        { name: "カツオのたたき 薬味ポン酢まみれ", desc: "ネギ、大葉、生姜の香りでストレスを大発散！", ingredients: "カツオ：1パック<br>薬味：たっぷり<br>ポン酢：適量", steps: "1. 薬味を千切りにする。<br>2. カツオに乗せポン酢をかける。" },
+        { name: "豆腐ハンバーグ 和風おろしシソだれ", desc: "大根おろしが気を降ろし、シソの香りで胃腸を活発に！", ingredients: "鶏ひき肉：100g<br>豆腐：100g<br>大葉・大根おろし：適量", steps: "1. 豆腐と肉を混ぜて焼く。<br>2. おろしシソポン酢をかける。" },
+        { name: "豚肉とピーマンの黒酢炒め", desc: "ピーマンの香りは気の巡りを良くし、黒酢でサラサラに。", ingredients: "豚肉：100g<br>ピーマン：3個<br>黒酢：適量", steps: "1. ピーマンを細切りにする。<br>2. 肉と炒め黒酢だれを絡める。" },
+        { name: "アサリとキャベツの酒蒸し レモン風味", desc: "アサリは熱を冷まし心を落ち着かせる名選手。", ingredients: "アサリ：150g<br>キャベツ：2枚<br>レモン：適量", steps: "1. アサリとキャベツを酒蒸しにする。<br>2. レモンを絞る。" }
+      ],
+      kyo_kan_kekkyo: [
+        { name: "レバーとほうれん草のガリバタ炒め", desc: "鉄分豊富なレバーとほうれん草で不足した血をチャージ！", ingredients: "豚レバー：100g<br>ほうれん草：1/2束<br>ニンニクバター：適量", steps: "1. ほうれん草を切る。<br>2. レバーをガリバタで炒めほうれん草を加える。" },
+        { name: "牛肉と人参のきんぴら風スタミナ炒め", desc: "牛肉と人参は「血」を造るゴールデンコンビ！", ingredients: "牛肉：100g<br>人参：1/2本<br>甘辛ダレ：適量", steps: "1. 人参を細切りにする。<br>2. 牛肉と炒め甘辛く味付ける。" },
+        { name: "鮭としめじのバター醤油ご飯", desc: "お腹を温め血を補う鮭を丸ごとインした炊き込みご飯。", ingredients: "米：1.5合<br>鮭：1切れ<br>バター醤油：適量", steps: "1. 米と調味料を入れる。<br>2. 鮭としめじを乗せ炊飯しバターを混ぜる。" },
+        { name: "豚肉とキャベツのポカポカ蒸し", desc: "豚肉の潤いとキャベツの甘みが乾燥した体を満たす。", ingredients: "豚肉：100g<br>キャベツ：2枚<br>ごま油ポン酢：適量", steps: "1. キャベツと豚肉を重ね蒸す。<br>2. ごまポン酢で食べる。" },
+        { name: "鶏そぼろとほうれん草の2色丼", desc: "卵と鶏肉で気と血を補給！お弁当にもぴったり。", ingredients: "鶏ひき肉：100g<br>卵：2個<br>ほうれん草：適量", steps: "1. 卵と鶏肉をそれぞれ炒める。<br>2. ほうれん草と共にご飯に乗せる。" },
+        { name: "牛肉とトマトの濃厚ハヤシライス風", desc: "トマトの酸味で血を綺麗にし、牛肉で造血！", ingredients: "牛肉：100g<br>トマト：1個<br>ケチャップ：適量", steps: "1. 牛肉と玉ねぎを炒める。<br>2. トマトとケチャップを加え煮る。" },
+        { name: "豚肉と黒ごまの香ばしネギ塩炒め", desc: "黒ごまと豚肉は血を補う最強タッグ。パサつく髪にも◎。", ingredients: "豚肉：150g<br>黒ごま：大さじ1<br>ネギ：適量", steps: "1. 豚肉とネギを塩ダレで炒める。<br>2. 黒ごまをたっぷり絡める。" },
+        { name: "ほうれん草と卵のマカロニグラタン", desc: "血を造るほうれん草と卵で冷えた体も温まる！", ingredients: "マカロニ：30g<br>ほうれん草・ゆで卵・チーズ：適量", steps: "1. 具材を耐熱皿に乗せる。<br>2. ホワイトソースとチーズで焼く。" },
+        { name: "サバ缶とトマトのスパイスカレー炒め", desc: "サバの血流改善効果とトマトの造血作用。", ingredients: "サバ缶：1缶<br>トマト：1個<br>カレー粉：適量", steps: "1. トマトを切る。<br>2. サバとトマトをカレー粉で炒める。" },
+        { name: "牛肉とごぼうのスタミナしぐれ煮", desc: "牛肉で血とエネルギーを爆速チャージ！", ingredients: "牛肉：150g<br>ごぼう：1/2本<br>生姜：適量", steps: "1. ごぼうをささがきにする。<br>2. 牛肉と生姜で甘辛く煮る。" }
+      ],
+      kyo_netsu_kekkyo: [
+        { name: "豚肉とトマトのとろーりチーズ焼き", desc: "豚肉とチーズで潤いを与え、トマトで血を補う！", ingredients: "豚肉：100g<br>トマト：1個<br>チーズ：適量", steps: "1. 豚肉とトマトを重ねる。<br>2. チーズをかけトースターで焼く。" },
+        { name: "イカとセロリの塩レモン炒め", desc: "イカは血を造りながら体の熱を冷ます優秀食材！", ingredients: "イカ：100g<br>セロリ：1/2本<br>レモン汁：適量", steps: "1. セロリを切る。<br>2. イカと炒め塩レモンだれを絡める。" },
+        { name: "豚しゃぶとほうれん草のごまポン酢和え", desc: "豚肉の潤い効果とほうれん草の造血パワー！", ingredients: "豚肉：100g<br>ほうれん草：1/2束<br>ごまポン酢：適量", steps: "1. 豚肉とほうれん草を茹でる。<br>2. ごまポン酢で和える。" },
+        { name: "アサリとトマトの旨みスープパスタ", desc: "アサリが熱を冷ましトマトが血を造るご馳走パスタ。", ingredients: "パスタ：100g<br>アサリ缶：1/2缶<br>トマト：適量", steps: "1. パスタを茹でる。<br>2. トマトとアサリを炒めパスタを絡める。" },
+        { name: "卵とキクラゲの中華風トマト炒め", desc: "黒キクラゲは血を補う！トマトの酸味でほてりもスッキリ。", ingredients: "トマト：1個<br>卵：2個<br>キクラゲ：適量", steps: "1. キクラゲを戻し卵を炒める。<br>2. トマトと炒め合わせる。" },
+        { name: "豚肉と小松菜のオイスター炒め", desc: "小松菜はほうれん草と並ぶ造血野菜で熱を冷ます。", ingredients: "豚肉：100g<br>小松菜：2株<br>オイスターソース：適量", steps: "1. 小松菜を切る。<br>2. 肉と炒めソースを絡める。" },
+        { name: "カツオのたたき カルパッチョ風サラダ", desc: "カツオでドバッと血をチャージ！トマトで目の疲れを癒やす。", ingredients: "カツオ：1パック<br>ミニトマト：適量<br>レモンオイル：適量", steps: "1. カツオとトマトを盛る。<br>2. レモンオイルをかける。" },
+        { name: "牡蠣と豆腐のあっさりみぞれ煮", desc: "海のミルク牡蠣と豆腐で潤いの海を作る。", ingredients: "牡蠣：100g<br>豆腐：150g<br>大根おろし：適量", steps: "1. 牡蠣と豆腐を煮る。<br>2. 大根おろしを加える。" },
+        { name: "鮭とほうれん草の豆乳クリーム煮", desc: "豆乳の潤いパワーで乾燥肌をレスキュー！", ingredients: "鮭：1切れ<br>ほうれん草：適量<br>豆乳：150ml", steps: "1. 鮭を焼き豆乳で煮る。<br>2. ほうれん草を加える。" },
+        { name: "鶏ささみとオクラのネバネバ梅肉和え", desc: "オクラが胃腸を潤し梅の酸味が水分を引き留める！", ingredients: "ささみ：2本<br>オクラ：3本<br>梅干し：1個", steps: "1. ささみとオクラを加熱する。<br>2. 梅肉で和える。" }
+      ],
+      jitsu_kan_kekkyo: [
+        { name: "牛肉とニラのスタミナもつ鍋風", desc: "牛肉とニラで体を芯から温め血行を強力に促進！", ingredients: "牛肉：150g<br>ニラ：1/2束<br>キャベツ：2枚", steps: "1. スープでキャベツと肉を煮る。<br>2. ニラをドサッと乗せる。" },
+        { name: "豚レバーとニラのガッツリ炒め", desc: "血虚改善の王道メニュー！ニラの温め効果でポカポカに。", ingredients: "豚レバー：100g<br>ニラ・もやし：各適量", steps: "1. レバーを焼く。<br>2. 野菜とオイスターソースで炒める。" },
+        { name: "牛肉とほうれん草のガリバタ醤油", desc: "血を造る最強タッグ！ニンニクバターでご飯が進む。", ingredients: "牛肉：100g<br>ほうれん草：1/2束<br>バター・ニンニク：適量", steps: "1. ほうれん草を加熱。<br>2. 肉をガリバタで炒め合わせる。" },
+        { name: "羊肉（ラム）と人参のクミン炒め", desc: "食べる目薬「人参」とスパイスで冷えと疲れ目を一掃。", ingredients: "ラム肉：150g<br>人参：1/2本<br>クミン：適量", steps: "1. 肉と細切り人参を炒める。<br>2. クミンと醤油を絡める。" },
+        { name: "牛すじとこんにゃくのピリ辛煮", desc: "牛すじの濃厚な旨みと栄養で体の芯から熱を生み出す。", ingredients: "牛すじ：1パック<br>こんにゃく・一味：適量", steps: "1. こんにゃくを下茹で。<br>2. 牛すじと煮込む。" },
+        { name: "鮭とほうれん草のチーズ焼き", desc: "お腹を温める鮭と血を補うほうれん草で大満足のおかず！", ingredients: "鮭：1切れ<br>ほうれん草：適量<br>チーズ：適量", steps: "1. 具材を耐熱皿に乗せる。<br>2. チーズをかけ焼く。" },
+        { name: "卵たっぷり！牛肉のすき焼き風煮込み", desc: "牛肉で血とエネルギーを爆速チャージ！", ingredients: "牛肉：150g<br>ネギ・豆腐・卵：適量", steps: "1. 具材をめんつゆで煮る。<br>2. 溶き卵につけて食べる。" },
+        { name: "豚肉とほうれん草のキムチ炒め", desc: "キムチの辛味で温め、ほうれん草で不足した血をチャージ。", ingredients: "豚肉：100g<br>ほうれん草・キムチ：適量", steps: "1. 豚肉とキムチを炒める。<br>2. ほうれん草を加えサッと炒める。" },
+        { name: "鶏もも肉と人参のカレーマヨ炒め", desc: "カレー粉の発汗パワーと人参の造血作用。", ingredients: "鶏肉：150g<br>人参：1/2本<br>カレー粉・マヨ：適量", steps: "1. 鶏肉をマヨで炒める。<br>2. 人参とカレー粉を加える。" },
+        { name: "黒ごまたっぷり！豚肉とネギの塩だれ", desc: "黒ごまと豚肉は血を補う最強コンビ！ネギで冷えもブロック。", ingredients: "豚肉：150g<br>ネギ：1本<br>黒ごま：たっぷり", steps: "1. 肉とネギを炒める。<br>2. 塩だれと黒ごまを絡める。" }
+      ],
+      jitsu_netsu_kekkyo: [
+        { name: "豚しゃぶとほうれん草の冷製トマトだれ", desc: "トマトで熱を冷まし、豚肉とほうれん草で血を造る！", ingredients: "豚肉：100g<br>ほうれん草：適量<br>トマト：1個", steps: "1. 豚肉とほうれん草を茹でる。<br>2. トマトだれをかける。" },
+        { name: "豚肉と黒キクラゲの卵炒め", desc: "黒キクラゲは血を補う黒い食材の代表！", ingredients: "豚肉：100g<br>キクラゲ・卵：各適量", steps: "1. キクラゲを戻し卵を炒める。<br>2. 豚肉と炒め合わせる。" },
+        { name: "カツオのたたき 玉ねぎとトマトのマリネ風", desc: "カツオでドバッと血をチャージ！目の疲れを癒やします。", ingredients: "カツオ：1パック<br>玉ねぎ・トマト：適量", steps: "1. 具材を皿に盛る。<br>2. マリネ液をかける。" },
+        { name: "アサリとほうれん草の旨塩和風パスタ", desc: "アサリが熱を冷ましほうれん草が血を造るご馳走パスタ。", ingredients: "パスタ：100g<br>アサリ缶・ほうれん草：適量", steps: "1. パスタを茹でる。<br>2. 具材と和風だしで和える。" },
+        { name: "イカとセロリの塩レモン炒め", desc: "イカは熱を冷まし血を造る優秀食材！", ingredients: "イカ：100g<br>セロリ：1/2本<br>レモン汁：適量", steps: "1. セロリを切る。<br>2. イカと炒めレモンだれを絡める。" },
+        { name: "豚ヒレ肉とナスのオイスター炒め", desc: "ナスは熱を冷ます夏野菜の王様。ヒレ肉でヘルシーに。", ingredients: "豚ヒレ肉：100g<br>ナス：1本<br>オイスターソース：適量", steps: "1. ナスと肉を炒める。<br>2. ソースを絡める。" },
+        { name: "ツナと人参のしりしり風 卵とじ", desc: "食べる目薬「人参」で血を補う！", ingredients: "人参：1本<br>ツナ・卵：各適量", steps: "1. 人参を千切りにする。<br>2. ツナと炒め卵でとじる。" },
+        { name: "マグロとアボカドのポキ丼", desc: "マグロは血を造る王様！アボカドで潤いも。", ingredients: "マグロ：100g<br>アボカド：1/2個<br>ごま油醤油：適量", steps: "1. 具材を角切りにする。<br>2. タレで和えご飯に乗せる。" },
+        { name: "豚肉とゴーヤのチャンプルー", desc: "ゴーヤの苦味が過剰な熱を消火！", ingredients: "ゴーヤ：1/4本<br>豚肉・卵：各適量", steps: "1. ゴーヤを塩揉み。<br>2. 肉と炒め卵でとじる。" },
+        { name: "鶏むね肉とキュウリの黒ごまダレ", desc: "黒ごまの造血パワーでパサつく髪や肌をケア！", ingredients: "鶏むね肉：1/2枚<br>キュウリ：1本<br>黒ごまポン酢：適量", steps: "1. 鶏肉を加熱し裂く。<br>2. キュウリと黒ごまダレで和える。" }
+      ],
+      kyo_kan_oketsu: [
+        { name: "サバ缶と玉ねぎの簡単アヒージョ", desc: "青魚パワーと玉ねぎで体を温め血をサラサラに！", ingredients: "サバ缶：1缶<br>玉ねぎ：1/4個<br>オリーブオイル：適量", steps: "1. フライパンに具材を入れる。<br>2. 弱火で煮立つまで加熱。" },
+        { name: "豚肉と玉ねぎの黒酢炒め", desc: "黒酢と玉ねぎは血を巡らせる最強コンビ！", ingredients: "豚肉：100g<br>玉ねぎ：1/2個<br>黒酢：適量", steps: "1. 肉と玉ねぎを炒める。<br>2. 黒酢だれを絡める。" },
+        { name: "いわし缶と梅干しの炊き込みご飯", desc: "青魚と梅のクエン酸で血流改善！", ingredients: "米：1.5合<br>いわし缶・梅干し：適量", steps: "1. 米と調味料を入れる。<br>2. 具材を乗せ炊飯。" },
+        { name: "鮭と玉ねぎの黒酢蒸し", desc: "鮭でお腹を温め黒酢で血を流す。", ingredients: "鮭：1切れ<br>玉ねぎ：適量<br>黒酢：適量", steps: "1. 鮭と玉ねぎを蒸す。<br>2. 黒酢だれをかける。" },
+        { name: "鶏肉とナスの生姜ポン酢炒め", desc: "ナスは滞った血を散らす名選手！生姜で冷えを防ぐ。", ingredients: "鶏肉：150g<br>ナス：1本<br>生姜ポン酢：適量", steps: "1. 肉とナスを炒める。<br>2. 生姜ポン酢を絡める。" },
+        { name: "サバ缶とキャベツのカレーマヨ炒め", desc: "カレー粉の発汗パワーとサバの血流改善効果！", ingredients: "サバ缶：1缶<br>キャベツ：2枚<br>カレーマヨ：適量", steps: "1. キャベツをマヨで炒める。<br>2. サバとカレー粉を加える。" },
+        { name: "ニラと卵のふんわり中華炒め", desc: "ニラの温め効果と血を巡らせる力！", ingredients: "ニラ：1/2束<br>卵：2個", steps: "1. 卵を炒め取り出す。<br>2. ニラを炒め卵を戻す。" },
+        { name: "牛肉とごぼうのしぐれ煮", desc: "ごぼうは血行を良くして老廃物を流すデトックス食材。", ingredients: "牛肉：100g<br>ごぼう：1/2本", steps: "1. ごぼうをささがきにする。<br>2. 肉と甘辛く煮る。" },
+        { name: "鶏肉と黒キクラゲのポカポカ生姜スープ", desc: "黒キクラゲはドロドロ血をキレイにする特効薬！", ingredients: "鶏肉：100g<br>キクラゲ・生姜：適量", steps: "1. キクラゲを戻す。<br>2. 具材をスープで煮る。" },
+        { name: "豚肉と長ネギの黒酢煮", desc: "ネギで冷えを吹き飛ばし黒酢で血を流す！", ingredients: "豚肉：150g<br>長ネギ：1本<br>黒酢：適量", steps: "1. 豚肉を焼く。<br>2. ネギと黒酢ダレで煮込む。" }
+      ],
+      kyo_netsu_oketsu: [
+        { name: "イカとトマトのガーリック炒め", desc: "イカでこわばりを和らげ、トマトで血を綺麗にして巡らせる！", ingredients: "イカ：100g<br>トマト：5個<br>ニンニク：適量", steps: "1. イカとトマトを炒める。<br>2. 塩こしょうで味付ける。" },
+        { name: "豚しゃぶと玉ねぎの黒酢マリネ", desc: "黒酢と玉ねぎのダブルパワーで血をサラサラに！", ingredients: "豚肉：100g<br>玉ねぎ：1/4個<br>黒酢：適量", steps: "1. 豚肉を茹でる。<br>2. 玉ねぎと黒酢でマリネする。" },
+        { name: "アサリとキャベツの旨塩レモン蒸し", desc: "アサリは熱を冷まし血を綺麗にする名選手！", ingredients: "アサリ：150g<br>キャベツ：2枚<br>レモン：適量", steps: "1. アサリとキャベツを蒸す。<br>2. レモンを絞る。" },
+        { name: "ナスとカニカマのさっぱりポン酢和え", desc: "ナスは滞った血を散らす最強の夏野菜！", ingredients: "ナス：1本<br>カニカマ：4本<br>ポン酢：適量", steps: "1. ナスをレンジ加熱。<br>2. カニカマとポン酢で和える。" },
+        { name: "豚肉とレンコンの黒酢炒め", desc: "黒酢で血流を改善しレンコンでお腹を潤す。", ingredients: "豚肉：100g<br>レンコン：100g<br>黒酢：適量", steps: "1. レンコンを切る。<br>2. 肉と炒め黒酢だれを絡める。" },
+        { name: "トマトと卵の中華風ふわとろ炒め", desc: "トマトの冷却作用と卵の栄養補給でドロドロ血を防ぐ。", ingredients: "トマト：1個<br>卵：2個", steps: "1. 卵を炒め取り出す。<br>2. トマトを炒め卵を戻す。" },
+        { name: "イカとブロッコリーの塩レモンだれ", desc: "イカは熱を冷まして血を造る。レモンで爽やかに。", ingredients: "イカ：100g<br>ブロッコリー：適量<br>レモン汁：適量", steps: "1. ブロッコリーを加熱。<br>2. イカと炒めレモンだれを絡める。" },
+        { name: "サバ缶とトマトのあっさりパスタ", desc: "サバの血流改善パワーとトマトの冷却作用。", ingredients: "パスタ：100g<br>サバ缶・トマト：適量", steps: "1. パスタを茹でる。<br>2. サバとトマトを炒め絡める。" },
+        { name: "豚ヒレ肉とセロリの黒酢炒め", desc: "セロリでイライラを鎮め黒酢で血をサラサラに！", ingredients: "豚ヒレ肉：100g<br>セロリ：1/2本<br>黒酢：適量", steps: "1. セロリを切る。<br>2. 肉と炒め黒酢だれを絡める。" },
+        { name: "豆腐とカニカマの塩あんかけ", desc: "カニカマが血の滞りを解消し、豆腐で熱を冷ます。", ingredients: "豆腐：150g<br>カニカマ：4本<br>塩だれ：適量", steps: "1. スープで豆腐とカニカマを煮る。<br>2. とろみをつける。" }
+      ],
+      jitsu_kan_oketsu: [
+        { name: "カツオのたたき 旨塩にんにくポン酢", desc: "カツオとニンニクの組み合わせで血行を強力に促進！", ingredients: "カツオ：1パック<br>玉ねぎ・ニンニク：適量", steps: "1. 皿に玉ねぎとカツオを盛る。<br>2. ニンニクポン酢をかける。" },
+        { name: "牛肉と玉ねぎのガッツリ黒酢炒め", desc: "黒酢と玉ねぎでドロドロ血を一気に流す！", ingredients: "牛肉：150g<br>玉ねぎ：1/2個<br>黒酢：適量", steps: "1. 肉と玉ねぎを炒める。<br>2. 黒酢だれを絡める。" },
+        { name: "ラム肉とニラのスタミナジンギスカン風", desc: "ラム肉とニラの温熱効果で冷えと血行不良を撃退！", ingredients: "ラム肉：150g<br>ニラ・玉ねぎ：適量", steps: "1. 肉と玉ねぎを炒める。<br>2. ニラを加え焼肉のタレを絡める。" },
+        { name: "サバの味噌煮缶で作る濃厚カレーパスタ", desc: "サバの血流改善効果とカレーのスパイス！", ingredients: "パスタ：100g<br>サバ味噌缶・カレー粉：適量", steps: "1. パスタを茹でる。<br>2. サバ缶とカレー粉を温め絡める。" },
+        { name: "豚バラ肉とナスのピリ辛黒酢炒め", desc: "ナスは滞った血を散らす名手。黒酢で巡りをブースト！", ingredients: "豚肉：100g<br>ナス：1本<br>黒酢・豆板醤：適量", steps: "1. ナスと肉を炒める。<br>2. ピリ辛黒酢だれを絡める。" },
+        { name: "鶏もも肉の長ネギにんにく醤油焼き", desc: "ネギとニンニクの香りが固まった血流を呼び起こす！", ingredients: "鶏肉：1枚<br>長ネギ・ニンニク：適量", steps: "1. 鶏肉とネギを焼く。<br>2. ニンニク醤油を絡める。" },
+        { name: "いわし缶と玉ねぎのチーズ焼き", desc: "いわしのサラサラ成分を余さず摂取！", ingredients: "いわし缶：1缶<br>玉ねぎ・チーズ：適量", steps: "1. いわしと玉ねぎを皿に乗せる。<br>2. チーズをかけトースターで焼く。" },
+        { name: "牛すじと大根のポカポカピリ辛煮", desc: "大根で巡りを良くし唐辛子の力で血行促進。", ingredients: "牛すじ煮込み：1パック<br>大根：1/4本<br>一味：適量", steps: "1. 大根をレンジ加熱。<br>2. 牛すじと煮て一味を振る。" },
+        { name: "エビとニラのガッツリ卵炒め", desc: "体を温めて巡らせる最強コンビ！", ingredients: "エビ：100g<br>ニラ・卵：適量", steps: "1. 卵を炒め取り出す。<br>2. エビとニラを炒め卵を戻す。" },
+        { name: "豚肉と黒キクラゲのスタミナ炒め", desc: "黒キクラゲはドロドロ血を綺麗にする薬膳の王様。", ingredients: "豚肉：100g<br>キクラゲ・ネギ：適量", steps: "1. キクラゲを戻す。<br>2. 肉と炒めオイスターソースを絡める。" }
+      ],
+      jitsu_netsu_oketsu: [
+        { name: "豚肉とゴーヤの黒酢チャンプルー", desc: "黒酢で血をサラサラに巡らせ、ゴーヤで熱を冷ますデトックス炒め！", ingredients: "豚肉：100g<br>ゴーヤ：1/4本<br>黒酢：適量", steps: "1. ゴーヤを塩揉みする。<br>2. 肉と炒め黒酢だれを絡める。" },
+        { name: "ナスとトマトのガッツリ黒酢麻婆豆腐", desc: "ナスとトマトが熱を冷まし黒酢がドロドロ血を解消。", ingredients: "豆腐：150g<br>ナス・トマト・ひき肉：適量<br>黒酢：適量", steps: "1. 具材を炒める。<br>2. 豆腐と黒酢スープで煮る。" },
+        { name: "サバ缶と玉ねぎの冷製レモンパスタ", desc: "サバの血流改善と玉ねぎレモンのサラサラ効果。", ingredients: "パスタ：100g<br>サバ缶・玉ねぎ：適量", steps: "1. パスタを茹でて冷ます。<br>2. サバとレモンだれで和える。" },
+        { name: "イカとセロリのオイスター炒め", desc: "イカは熱を冷まして血を造り、セロリの香りが滞りを晴らす。", ingredients: "イカ：100g<br>セロリ：1/2本", steps: "1. セロリを切る。<br>2. イカと炒めオイスターソースを絡める。" },
+        { name: "豚しゃぶとナスのさっぱり梅ポン酢", desc: "ナスで熱を冷まし梅の酸味で血の巡りをアップ！", ingredients: "豚肉：100g<br>ナス：1本<br>梅ポン酢：適量", steps: "1. ナスをレンジ加熱。<br>2. 茹でた肉と梅ポン酢で和える。" },
+        { name: "黒キクラゲと卵のトマト中華炒め", desc: "黒キクラゲはドロドロ血を綺麗にする！", ingredients: "キクラゲ：適量<br>トマト・卵：適量", steps: "1. 卵を炒め取り出す。<br>2. トマトとキクラゲを炒め卵を戻す。" },
+        { name: "カツオのたたき 薬味どっさりサラダ", desc: "カツオで血を造りたっぷりの薬味で血流改善！", ingredients: "カツオ：1パック<br>薬味：たっぷり", steps: "1. 薬味を千切りにする。<br>2. カツオに乗せポン酢をかける。" },
+        { name: "豚肉と玉ねぎの冷やし中華風うどん", desc: "お酢の力で血を巡らせ、冷たいうどんで熱を逃がす。", ingredients: "うどん：1玉<br>豚肉・玉ねぎ：適量", steps: "1. うどんと肉を冷ます。<br>2. 酢醤油ダレで和える。" },
+        { name: "鶏むね肉とナスの甘酢あんかけ", desc: "ナスで瘀血を散らしお酢で巡りを改善！", ingredients: "鶏むね肉：150g<br>ナス：1本<br>甘酢：適量", steps: "1. 肉とナスを焼く。<br>2. 甘酢あんを絡める。" },
+        { name: "サバ缶とキャベツのトマト煮込み", desc: "サバの血流改善効果とトマトの冷却作用。", ingredients: "サバ缶：1缶<br>キャベツ・トマト：適量", steps: "1. 具材をボウルに入れる。<br>2. レンジで5分加熱する。" }
+      ],
+      kyo_kan_suitai: [
+        { name: "鶏もも肉とかぼちゃのカレーチーズドリア", desc: "スパイスとかぼちゃで水分代謝をグッと引き上げる！", ingredients: "鶏肉：50g<br>かぼちゃ・カレー：適量", steps: "1. ご飯に具材を乗せる。<br>2. チーズをかけトースターで焼く。" },
+        { name: "エビとじゃがいものガリバタ炒め", desc: "じゃがいもは余分な水分を吸い取ってくれる名コンビ！", ingredients: "エビ：100g<br>じゃがいも：1個", steps: "1. じゃがいもをレンジ加熱。<br>2. エビとガリバタで炒める。" },
+        { name: "鶏肉とキノコの生姜たっぷり炊き込みご飯", desc: "キノコの利水効果と生姜の温めパワーで体が軽くなる。", ingredients: "米：1.5合<br>鶏肉・キノコ・生姜：適量", steps: "1. 米と調味料を入れる。<br>2. 具材を乗せて炊飯。" },
+        { name: "豚肉とトウモロコシのポカポカ蒸し", desc: "トウモロコシはむくみ解消の特効薬！", ingredients: "豚肉：100g<br>トウモロコシ：適量", steps: "1. 豚肉とコーンを蒸す。<br>2. 生姜ポン酢で食べる。" },
+        { name: "鶏ひき肉とかぼちゃのポクポクそぼろ煮", desc: "かぼちゃのホクホク感が胃腸の湿気を取り除く。", ingredients: "ひき肉：100g<br>かぼちゃ：150g", steps: "1. 肉を炒める。<br>2. かぼちゃと甘辛く煮る。" },
+        { name: "鮭とじゃがいものバター味噌炒め", desc: "お腹を温める鮭と水分を排出するじゃがいも。", ingredients: "鮭：1切れ<br>じゃがいも：1個", steps: "1. じゃがいもを加熱。<br>2. 鮭と炒めバター味噌を絡める。" },
+        { name: "エビとニラのスタミナごま油炒め", desc: "温熱コンビが体内の「冷えた水」を蒸発させる！", ingredients: "エビ：100g<br>ニラ：1/2束", steps: "1. ニラを切る。<br>2. エビとニラを炒めスープの素で味付ける。" },
+        { name: "鶏むね肉とキノコのカレーあんかけ", desc: "カレースパイスが胃腸を活性化しキノコで利水。", ingredients: "鶏むね肉：150g<br>しめじ・カレー粉：適量", steps: "1. 鶏肉とキノコを煮る。<br>2. カレー粉を加えとろみをつける。" },
+        { name: "豚肉と玉ねぎの生姜たっぷりスープご飯", desc: "生姜で汗をかいて余分な水を外へ追い出す！", ingredients: "豚肉：50g<br>生姜・玉ねぎ：適量", steps: "1. 具材をスープでレンジ加熱。<br>2. ご飯にかける。" },
+        { name: "牛肉とごぼうのスタミナしぐれ煮", desc: "牛肉でパワーをつけつつごぼうでデトックス。", ingredients: "牛肉：100g<br>ごぼう：1/2本", steps: "1. ごぼうをささがきにする。<br>2. 肉と甘辛く煮る。" }
+      ],
+      kyo_netsu_suitai: [
+        { name: "豚しゃぶとキュウリのピリ辛ごまダレ", desc: "キュウリで体内の余分な熱と水分をスッキリ排出！", ingredients: "豚肉：100g<br>キュウリ：1/2本", steps: "1. 豚肉を茹でる。<br>2. キュウリとごまダレで和える。" },
+        { name: "トウモロコシと豆腐のふんわり中華煮", desc: "トウモロコシと豆腐は熱を冷まして水を出す名コンビ！", ingredients: "コーン缶・豆腐：適量", steps: "1. 豆腐とコーンをスープで煮る。<br>2. とろみをつける。" },
+        { name: "アサリとアスパラの旨塩レモンパスタ", desc: "アサリとアスパラは高い利尿作用があります。", ingredients: "パスタ：100g<br>アサリ缶・アスパラ：適量", steps: "1. パスタとアスパラを茹でる。<br>2. アサリとレモン塩で絡める。" },
+        { name: "冬瓜（とうがん）と豚肉のあっさり煮", desc: "冬瓜は「水を出す」薬膳の代表格！", ingredients: "冬瓜：150g<br>豚肉：80g", steps: "1. 冬瓜を柔らかく煮る。<br>2. 豚肉を加え白だしで味付ける。" },
+        { name: "トマトとツナの冷製カペッリーニ風そうめん", desc: "トマトの酸味でリフレッシュし余分な熱を冷ます。", ingredients: "そうめん：1束<br>トマト・ツナ：適量", steps: "1. そうめんを冷やす。<br>2. 具材とオリーブオイルで和える。" },
+        { name: "ハトムギと鶏肉のヘルシー中華スープ", desc: "ハトムギは美肌とむくみ解消の強い味方。", ingredients: "ハトムギ・鶏肉：適量", steps: "1. ハトムギを煮る。<br>2. 鶏肉を加えスープにする。" },
+        { name: "豚肉とセロリの塩レモン炒め", desc: "セロリの香りが利尿を助け、レモンでスッキリ！", ingredients: "豚肉：100g<br>セロリ：1/2本", steps: "1. セロリを切る。<br>2. 肉と炒めレモンだれを絡める。" },
+        { name: "せいろ蒸し！イカと彩り野菜のポン酢がけ", desc: "イカは水分バランスを整える。蒸して水分もスッキリ抜く。", ingredients: "イカ：100g<br>野菜：適量", steps: "1. イカと野菜を蒸す。<br>2. ポン酢をかける。" },
+        { name: "小豆（あずき）とカボチャのいとこ煮風炒め", desc: "小豆は「水を流す」最強食材！カボチャの甘みで美味しく。", ingredients: "小豆・カボチャ：適量", steps: "1. カボチャを加熱。<br>2. 小豆と炒め醤油を絡める。" },
+        { name: "サバ缶とトマトの冷やしサラダうどん", desc: "サバの脂とトマトの冷却パワーでガッツリむくみケア！", ingredients: "うどん：1玉<br>サバ缶・トマト：適量", steps: "1. うどんを冷やす。<br>2. 具材を乗せめんつゆをかける。" }
+      ],
+      jitsu_kan_suitai: [
+        { name: "牛肉とネギのすき焼き風うどん", desc: "ネギと牛肉で発汗を促し、冷えと頑固なむくみを撃退！", ingredients: "うどん：1玉<br>牛肉・ネギ：適量", steps: "1. 牛肉とネギを煮る。<br>2. うどんを加える。" },
+        { name: "ラム肉と玉ねぎのジンギスカン風カレー炒め", desc: "ラム肉とカレースパイスで内側の水分を蒸発させる！", ingredients: "ラム肉：150g<br>玉ねぎ・カレー粉：適量", steps: "1. 肉と玉ねぎを炒める。<br>2. カレー粉と焼肉のタレを絡める。" },
+        { name: "エビとブロッコリーのガリバタ醤油炒め", desc: "エビの温熱作用とブロッコリーの利尿作用！", ingredients: "エビ：100g<br>ブロッコリー：適量", steps: "1. ブロッコリーを加熱。<br>2. エビとガリバタで炒める。" },
+        { name: "サバ缶と玉ねぎのチリチーズ焼き", desc: "豆板醤の辛味で水を追い出します！", ingredients: "サバ缶：1缶<br>玉ねぎ・チーズ・豆板醤：適量", steps: "1. サバと玉ねぎに豆板醤を塗る。<br>2. チーズをかけ焼く。" },
+        { name: "豚バラ肉とキノコのたっぷり生姜鍋", desc: "キノコのデトックス効果を生姜の温めパワーで最大化。", ingredients: "豚肉：100g<br>キノコ・生姜：適量", steps: "1. スープに生姜を入れる。<br>2. 具材を煮込む。" },
+        { name: "牛肉とニンニクの芽のスタミナ炒め", desc: "血管を広げるニンニクの芽で水分代謝をブースト。", ingredients: "牛肉：100g<br>ニンニクの芽：1束", steps: "1. ニンニクの芽を切る。<br>2. 肉と炒めオイスターソースを絡める。" },
+        { name: "鶏もも肉とじゃがいものガーリックステーキ", desc: "じゃがいもが余分な水を吸い取りニンニクが汗をかかせる！", ingredients: "鶏肉：1枚<br>じゃがいも・ニンニク：適量", steps: "1. じゃがいもを加熱。<br>2. 鶏肉とニンニクで焼く。" },
+        { name: "エビとトウモロコシのピリ辛かき揚げ風", desc: "トウモロコシはむくみの特効薬！ガッツリ揚げ焼きに。", ingredients: "エビ・コーン：適量<br>小麦粉：適量", steps: "1. 具材と粉を混ぜる。<br>2. 多めの油で焼く。" },
+        { name: "豚キムチとニラの最強スタミナ炒め", desc: "キムチとニラのダブル熱パワーで溜まった水を吹き飛ばす。", ingredients: "豚肉：100g<br>キムチ・ニラ：適量", steps: "1. 肉とキムチを炒める。<br>2. ニラを加えサッと炒める。" },
+        { name: "鮭とアスパラのガリバタホイル焼き", desc: "天然の利尿剤アスパラを鮭の旨みで！", ingredients: "鮭：1切れ<br>アスパラ・バター：適量", steps: "1. ホイルに具材を乗せる。<br>2. バター醤油で焼く。" }
+      ],
+      jitsu_netsu_suitai: [
+        { name: "豚肉と春雨の旨辛麻婆豆腐", desc: "豆腐と春雨で水分を吸い取りトマトで熱を冷ましてデトックス！", ingredients: "豚ひき肉：50g<br>豆腐・春雨・トマト：適量", steps: "1. 肉とトマトを炒める。<br>2. 麻婆の素と豆腐・春雨を煮る。" },
+        { name: "ナスとトマトのガッツリ黒酢炒め", desc: "ナスとトマトの冷却パワーに黒酢の巡り効果をプラス。", ingredients: "豚肉：100g<br>ナス・トマト・黒酢：適量", steps: "1. 具材を切る。<br>2. 炒めて黒酢だれを絡める。" },
+        { name: "サバ缶とキュウリの冷やし汁うどん", desc: "キュウリは熱を冷ます水の排出名人！", ingredients: "うどん：1玉<br>サバ缶・キュウリ：適量", steps: "1. うどんを冷やす。<br>2. 具材を乗せ冷たいめんつゆをかける。" },
+        { name: "エビとアスパラの塩レモン炒め", desc: "アスパラの利尿作用でむくみスッキリ！", ingredients: "エビ：100g<br>アスパラ・レモン汁：適量", steps: "1. アスパラを加熱。<br>2. エビと炒め塩レモンだれを絡める。" },
+        { name: "ゴーヤと豚肉の春雨チャンプルー", desc: "ゴーヤの苦味で熱を冷まし春雨で水分をキャッチ！", ingredients: "ゴーヤ・豚肉・春雨・卵：適量", steps: "1. ゴーヤを塩揉み。<br>2. 具材を炒め卵でとじる。" },
+        { name: "トウモロコシと鶏肉の炊飯器ピラフ", desc: "トウモロコシはむくみに効く！炊飯器でパラッと仕上げる。", ingredients: "米：1.5合<br>トウモロコシ・鶏肉：適量", steps: "1. 米とコンソメを入れる。<br>2. 具材を乗せ炊く。" },
+        { name: "アサリとチンゲン菜の旨塩あんかけ豆腐", desc: "アサリとチンゲン菜が熱と水をダブルで排出。", ingredients: "アサリ缶・チンゲン菜・豆腐：適量", steps: "1. 具材をスープで煮る。<br>2. 豆腐を加えとろみをつける。" },
+        { name: "セロリとイカのさっぱり塩焼きそば", desc: "セロリと塩味で溜まった熱と水を流します。", ingredients: "焼きそば麺：1玉<br>イカ・セロリ：適量", steps: "1. セロリを切る。<br>2. 具材と麺を塩だれで炒める。" },
+        { name: "冬瓜（とうがん）とカニカマのトロトロ煮", desc: "冬瓜は体内の除湿機！熱を冷まし水を流します。", ingredients: "冬瓜：150g<br>カニカマ：適量", steps: "1. 冬瓜を柔らかく煮る。<br>2. カニカマを加えとろみをつける。" },
+        { name: "豚しゃぶとレタスの梅おろし和え", desc: "レタスの冷却効果と大根おろしの利水効果。", ingredients: "豚肉：100g<br>レタス・梅干し・大根おろし：適量", steps: "1. 豚肉を茹でる。<br>2. 具材を梅おろしポン酢で和える。" }
+      ]
     };
+
     // 1. 質問データ (24問)
     const questions = [
-      // --- 【全体的な体質・温度感覚】 ---
       { text: "日頃から疲れやすく、休日は家で横になっていることが多いですか？", type: "kyo" },
       { text: "普段から声が大きく、体力にはかなり自信がある方ですか？", type: "jitsu", reverse: true },
       { text: "季節の変わり目などに、体調を崩しやすい（風邪をひきやすい）ですか？", type: "kyo" },
       { text: "手足がいつも冷たく、冬場は特に冷えが気になりますか？", type: "kan" },
       { text: "どちらかというと暑がりで、顔がほてったり汗をかきやすいですか？", type: "netsu", reverse: true },
       { text: "夏場でも、冷たい飲み物より温かい飲み物を好んで選びますか？", type: "kan" },
-      
-      // --- 【身体の症状：エネルギー・水分・血】 ---
       { text: "階段を少し登っただけで、息切れしたり疲れを感じたりしますか？", type: "kikyo" },
       { text: "食後に強い眠気やだるさを感じて、動けなくなることが多いですか？", type: "kikyo" },
       { text: "話すのが億劫に感じたり、声が小さくなりがちですか？", type: "kikyo" },
@@ -550,8 +599,6 @@
       { text: "どこかに強くぶつけた記憶がないのに、よくあざができていることがありますか？", type: "oketsu" },
       { text: "マッサージに行ってもすぐ痛くなるような、慢性的な肩こりや頭痛がありますか？", type: "oketsu" },
       { text: "最近、顔のシミやくすみ、目の下のクマが濃くなったように感じますか？", type: "oketsu" },
-      
-      // --- 【自律神経・精神・ストレス系の症状】 ---
       { text: "立ち上がった時などに、めまいやふらつきを感じることが多いですか？", type: "kigyaku" },
       { text: "緊張していない時でも、急に胸がドキドキ（動悸）することがありますか？", type: "kigyaku" },
       { text: "上半身や顔はカーッと熱くのぼせるのに、足元は冷えていることがありますか？", type: "kigyaku" },
@@ -562,25 +609,17 @@
 
     // 2. 体質詳細データ
     const typeDetails = {
-      kikyo: { name: "気虚", desc: "エネルギー不足。疲れやすく免疫が低下しています。", long: "気が不足して元気がありません。消化に良いものを食べ、しっかり睡眠をとりましょう。" },
-      kitai: { name: "気滞", desc: "巡り停滞。ストレスを感じやすくイライラ気味。", long: "気の流れが滞っています。香りの良い食材や深呼吸でリラックスを心がけて。" },
-      kigyaku: { name: "気逆", desc: "逆流状態。のぼせや動悸が起きやすいです。", long: "気が上半身に突き上げています。足を温め、ゆったり過ごすことが大切です。" },
-      kekkyo: { name: "血虚", desc: "栄養不足。肌や髪が乾燥しやすく、疲れやすい。", long: "血が不足し栄養が行き渡っていません。赤い・黒い食材を食べて養いましょう。" },
-      oketsu: { name: "瘀血", desc: "血行不良。血がドロドロで肩こりやシミの原因に。", long: "血の流れが滞っています。体を動かし、温める食材で巡りを助けましょう。" },
-      suitai: { name: "水滞", desc: "水分停滞。体が重く、むくみや冷えを感じます。", long: "余分な水が溜まっています。利尿作用のある食材を選び、適度に汗を流しましょう。" },
-      kyo: { name: "虚証", desc: "体力が弱く、抵抗力が落ちている状態です。", long: "心身の機能が低下しています。無理せずエネルギーを補いましょう。" },
-      jitsu: { name: "実証", desc: "体力はありますが、邪気が溜まりやすい状態です。", long: "パワーはありますが、溜め込みやすいのでデトックスが必要です。" },
-      kan: { name: "寒証", desc: "冷えが強く、代謝が落ちている状態です。", long: "内臓が冷えています。温かい飲食物を選び、冷えから体を守りましょう。" },
-      netsu: { name: "熱証", desc: "熱がこもりやすく、のぼせやすい状態です。", long: "体内に余分な熱があります。夏野菜などで優しく熱を逃がしましょう。" }
+      kikyo: { name: "気虚 (ききょ)", desc: "エネルギー不足。疲れやすく免疫が低下しています。", long: "気が不足して元気がありません。消化に良いものを食べ、しっかり睡眠をとりましょう。" },
+      kitai: { name: "気滞 (きたい)", desc: "巡り停滞。ストレスを感じやすくイライラ気味。", long: "気の流れが滞っています。香りの良い食材や深呼吸でリラックスを心がけて。" },
+      kigyaku: { name: "気逆 (きぎゃく)", desc: "逆流状態。のぼせや動悸が起きやすいです。", long: "気が上半身に突き上げています。足を温め、ゆったり過ごすことが大切です。" },
+      kekkyo: { name: "血虚 (けっきょ)", desc: "栄養不足。肌や髪が乾燥しやすく、疲れやすい。", long: "血が不足し栄養が行き渡っていません。赤い・黒い食材を食べて養いましょう。" },
+      oketsu: { name: "瘀血 (おけつ)", desc: "血行不良。血がドロドロで肩こりやシミの原因に。", long: "血の流れが滞っています。体を動かし、温める食材で巡りを助けましょう。" },
+      suitai: { name: "水滞 (すいたい)", desc: "水分停滞。体が重く、むくみや冷えを感じます。", long: "余分な水が溜まっています。利尿作用のある食材を選び、適度に汗を流しましょう。" },
+      kyo: { name: "虚証 (きょしょう)", desc: "体力が弱く、抵抗力が落ちている状態です。", long: "心身の機能が低下しています。無理せずエネルギーを補いましょう。" },
+      jitsu: { name: "実証 (じっしょう)", desc: "体力はありますが、邪気が溜まりやすい状態です。", long: "パワーはありますが、溜め込みやすいのでデトックスが必要です。" },
+      kan: { name: "寒証 (かんしょう)", desc: "冷えが強く、代謝が落ちている状態です。", long: "内臓が冷えています。温かい飲食物を選び、冷えから体を守りましょう。" },
+      netsu: { name: "熱証 (ねつしょう)", desc: "熱がこもりやすく、のぼせやすい状態です。", long: "体内に余分な熱があります。夏野菜などで優しく熱を逃がしましょう。" }
     };
-
-    // 3. 薬膳ファイルマッピング (全データ)
-    function getRecipeFilename(name) {
-      const map = {
-        "鶏肉と山芋の生姜煮込み": "chicken_yamaimo_ginger.html", "鶏肉と根菜の薬膳スープ": "chicken_root_herb.html", "鮭ときのこの雑炊": "salmon_mushroom_zosui.html", "鶏肉と生姜の薬膳スープ": "chicken_ginger_soup.html", "陳皮と豚肉の炒め物":"chinpi_pork.html" , "鶏肉と生姜のポカポカ炒め":"chicken_ginger_warm.html", "鮭と根菜の味噌汁":"salmon_root_miso.html", "鶏肉とキャベツの生姜スープ":"chicken_cabbage_ginger_soup.html", "大根と生姜のお粥":"daikon_ginger_okayu.html", "鶏肉と根菜のぽかぽか煮込み":"chicken_root_pokapoka.html", "レバーとほうれん草の元気チャージ炒め":"liver_spinach_stirfry.html", "黒豆と鮭のあったか雑炊":"blackbean_salmon_zosui.html", "鶏肉と黒キクラゲの生姜煮込み":"chicken_kikurage_ginger.html", "鯖と根菜の煮込み":"saba_root_nikomi.html", "ニラ玉と鶏ひき肉の生姜スープ":"nira_tama_torihiki_soup.html", "黒キクラゲと生姜のスープ":"kikurage_ginger_soup.html", "鶏肉とハト麦の生姜スープ":"chicken_hatomugi_ginger_soup.html", "あずきとかぼちゃの煮物":"azuki_kabocha_nimono.html", "鮭と大根の味噌汁":"sake_daikon_miso.html", "ハトムギと小豆のデトックス粥":"hatomugi_azuki_detox.html", "山芋と鶏むね肉のさっぱり煮":"yamaimo_chicken_refresh.html", "緑豆と豆腐の中華風スープ":"ryokutou_toufu_chinese.html", "鶏肉とキャベツ、トマトの卵とじ":"chicken_cabbage_tomato_egg.html", "豆腐と梨の冷製スープ":"tofu_pear_cold_soup.html", "鶏むね肉とセロリ、トマトのさっぱり炒め":"chicken_celery_tomato.html", "緑豆と豆腐、しその薬膳スープ":"greenbean_tofu_shiso.html", "鶏肉とキャベツ、みょうがの卵とじ":"chicken_cabbage_myoga_egg.html", "ミントとグレープフルーツのサラダ":"mint_grapefruit_salad.html", "鶏むね肉とセロリ、梨の鎮静炒め":"chicken_celery_pear.html", "緑豆と豆腐、菊花の鎮静スープ":"mungbean_tofu_chrysanthemum.html", "鶏肉とキャベツ、ミントの卵とじ":"chicken_cabbage_mint_egg.html", "菊花とトマトの冷製スープ":"chrysanthemum_tomato_cold.html", "鶏レバーとほうれん草のトマト煮込み":"chicken_liver_spinach_tomato.html", "あさりと豆腐、トマトの中華風スープ":"asari_tofu_tomato_soup.html", "牛肉とキャベツ、クコの実の卵とじ":"beef_cabbage_gouqi_egg.html", "黒ゴマとクコの実の豆乳プリン":"black_sesame_gouqi_soymilk.html", "鶏むね肉とセロリ、黒きくらげの鎮静炒め":"chicken_celery_kikurage.html", "緑豆と豆腐、菊花、紅花の鎮静スープ":"mungbean_tofu_chrysanthemum_safflower.html", "牛肉とキャベツ、みょうが、クコの実の卵とじ":"beef_cabbage_myouga_egg.html", "玉ねぎとベリーのデトックスジュース":"onion_berry_detox.html", "鶏むね肉とハト麦、冬瓜のさっぱり煮":"chicken_hatomugi_togan.html", "緑豆と豆腐、きゅうりの冷製スープ":"mungtofu_cucumber_cold.html", "鶏肉とキャベツ、ハト麦の中華風卵とじ":"chicken_cabbage_hatomugi_egg.html", "スイカとハトムギのスムージー":"watermelon_hatomugi_smoothie.html", "大根の鶏むね肉のピリ辛煮":"daikon_chicken_spicy.html", "ニラと牛肉の生姜炒め":"nira_beef_ginger.html", "薬膳参鶏湯":"samgyetang.html", "ニラと牛肉、玉ねぎのピリ辛炒め":"beef_nira_onion_spicy.html", "大根と鯖の生姜煮":"daikon_saba_ginger.html", "鶏肉と根菜の生姜スープ":"chicken_root_ginger_soup.html", "シナモン風味の豚肉とネギ炒め":"pork_negishi_cinnamon.html", "大根と鶏むね肉の菊花煮":"daikon_chicken_kikuka.html", "ニラと牛肉、みょうがの生姜炒め":"beef_nira_myoga.html", "鶏肉と根菜、しその薬膳スープ":"chicken_root_shiso_soup.html", "大根とネギの温かいスープ":"daikon_negi_soup.html", "牛肉と黒きくらげ、ニラのピリ辛炒め":"beef_kikurage_nira_spicy.html", "鶏レバーと大根の生姜煮":"chicken_liver_daikon_ginger.html", "豚肉と根菜、クコの薬膳スープ":"pork_root_gouqi_soup.html", "レバーと黒ゴマの炒め物":"liver_blacksesame_stirfry.html", "牛肉と黒きくらげ、玉ねぎのピリ辛炒め":"beef_kikurage_onion_spicy.html", "鶏レバーと大根、紅花の生姜煮":"chicken_liver_daikon_safflower.html", "豚肉と根菜、みょうが、クコの薬膳スープ":"pork_root_myoga_gouqi_soup.html", "黒酢と玉ねぎの温活ドリンク":"blackvinegar_onion_warmdrink.html", "鶏むね肉とハト麦、大根の生姜煮":"chicken_hatomugi_daikon.html", "豚肉とあずき、ごぼうの味噌汁":"pork_azuki_gobo_miso.html", "鶏肉と冬瓜、みょうがの生姜スープ":"chicken_togan_myoga_ginger.html", "小豆とハトムギのむくみ解消スープ":"azuki_hatomugi_detox.html", "大根と鶏むね肉、豆腐の菊花煮":"daikon_chicken_tofu_kikuka.html", "緑豆と鶏むね肉、きゅうりの冷製スープ":"ryokutou_chicken_cucumber_cold.html", "緑豆と豆腐の冷製スープ":"mungbean_tofu_cold.html", "セロリと豚肉、トマトの鎮静炒め":"celery_pork_tomato.html", "緑豆と豆腐、菊花、みょうがの鎮静スープ":"mungbean_tofu_chrysanthemum_myoga.html", "豚肉とキャベツ、しその卵とじ":"pork_cabbage_shiso_egg.html", "レモンとミントのデトックスジュース":"lemon_mint_detox.html", "大根と鶏むね肉、菊花のさっぱり煮":"daikon_chicken_kikuka_refresh.html", "緑豆と豆腐、菊花、梨の鎮静スープ":"mungtofu_kikuka_pear_soup.html", "豚肉とキャベツ、ミントの卵とじ":"pork_cabbage_mint_egg.html", "菊花と緑豆の冷やし茶":"kikuka_mungbean_cooltea.html", "牛肉とほうれん草、トマトのさっぱり炒め":"beef_spinach_tomato_refresh.html", "鶏レバーと緑豆、菊花の鎮静スープ":"chicken_liver_mung_chrysanthemum.html", "牛肉とキャベツ、クコの実の卵とじ":"beef_cabbage_goji_egg.html", "黒ゴマとクコの実のなつめスムージー":"black_sesame_goji_jujube_smoothie.html", "牛肉とトマト、セロリの鎮静炒め":"beef_tomato_celery_calm.html", "鶏レバーと緑豆、菊花、紅花の鎮静スープ":"chicken_liver_mung_chrysanthemum_safflower.html", "牛肉とキャベツ、みょうが、クコの卵とじ":"beef_cabbage_myoga_gouqi_egg.html", "ねぎと赤ワインの温活ドリンク":"greenonion_redwine_hotdrink.html", "冬瓜と鶏むね肉、ハト麦のさっぱり煮":"chicken_togan_hatomugi_refresh.html", "あずきと豆腐、きゅうりの冷製スープ":"azuki_tofu_cucumber_cold.html", "豚肉とキャベツ、ハト麦の卵とじ":"pork_cabbage_hatomugi_egg.html", "スイカとキュウリのデトックスジュース":"watermelon_cucumber_detox.html"
-      };
-      return map[name] || "";
-    }
 
     // 4. 各コンテンツマッピングデータ
     const yakuzennNames = {
@@ -664,27 +703,29 @@
 
     let points = { kikyo: 0, kitai: 0, kigyaku: 0, kekkyo: 0, oketsu: 0, suitai: 0, kyo: 0, jitsu: 0, kan: 0, netsu: 0 };
     let current = 0;
-    let history_scores = []; // スコアの履歴を保存する箱
+    let history_scores = []; 
+    let userAnswers = [];
 
-    // 5. アプリケーションロジック
     function showQuestion() {
-      const isResultScreen = document.getElementById("result").style.display === "block";
-      document.getElementById("back-btn").style.display = (current > 0 || isResultScreen) ? "inline-block" : "none";
-      document.getElementById("back-btn").style.display = current > 0 ? "inline-block" : "none";
+      const isResultScreen = document.getElementById("resultArea").style.display === "block";
+      document.getElementById("back-btn").style.display = (current > 0 && !isResultScreen) ? "inline-block" : "none";
+      
       const progress = (current / questions.length) * 100;
       document.getElementById("progressBar").style.width = progress + "%";
+      
       const diagDiv = document.getElementById("diagnosis");
       diagDiv.innerHTML = "";
+      
       if (current >= questions.length) { finish(); return; }
       
       const q = questions[current];
       const card = document.createElement("div");
       card.className = "card";
-      card.innerHTML = `<div class="question-text">${q.text}</div>`;
+      card.innerHTML = `<div class="question-text">Q${current+1}. ${q.text}</div>`;
       
       const optDiv = document.createElement("div");
       optDiv.className = "options";
-      // ここが5段階評価の部分です
+      
       [
         {l:"とても当てはまる", v:2},
         {l:"やや当てはまる", v:1},
@@ -693,26 +734,38 @@
         {l:"まったく当てはまらない", v:-2}
       ].forEach(o => {
         const id = `q${current}_${o.v}`;
-        optDiv.innerHTML += `<input type="radio" name="q" id="${id}" onclick="next('${q.type}',${o.v},${q.reverse||false})"><label for="${id}">${o.l}</label>`;
+        const isSelected = userAnswers[current] === o.v;
+        const labelClass = isSelected ? 'selected' : '';
+        const checked = isSelected ? 'checked' : '';
+        
+        optDiv.innerHTML += `<input type="radio" name="q" id="${id}" ${checked} onclick="next('${q.type}',${o.v},${q.reverse||false})">
+                             <label for="${id}" class="${labelClass}">${o.l}</label>`;
       });
+      
       card.appendChild(optDiv);
       diagDiv.appendChild(card);
     }
 
     function next(type, val, rev) {
-      history_scores.push({...points}); // 今のスコアを保存
+      userAnswers[current] = val;
+      history_scores.push({...points}); 
       points[type] += rev ? -val : val;
+      
+      const labels = document.querySelectorAll('.options label');
+      labels.forEach(l => l.classList.remove('selected'));
+      const clickedLabel = document.querySelector(`label[for="q${current}_${val}"]`);
+      if(clickedLabel) clickedLabel.classList.add('selected');
+
       current++;
-      setTimeout(showQuestion, 200);
+      setTimeout(showQuestion, 300);
     }
+
     function goBack() {
       if (current > 0) {
-        // もし今、結果画面を見ていたら、結果画面を隠して診断画面を出す
-        document.getElementById("result").style.display = "none";
-        document.getElementById("diagnosis").style.display = "block";
-
+        document.getElementById("resultArea").style.display = "none";
+        document.getElementById("diagnosisArea").style.display = "block";
         current--;
-        points = history_scores.pop(); // 前のスコアを復元
+        points = history_scores.pop();
         showQuestion();
       }
     }
@@ -723,120 +776,188 @@
       const others = ['kikyo', 'kitai', 'kigyaku', 'kekkyo', 'oketsu', 'suitai'];
       const max = others.reduce((a, b) => points[a] >= points[b] ? a : b);
       const res = { display: [type, temp, max], key: `${type}_${temp}_${max}` };
-      localStorage.setItem("lastResult", JSON.stringify(res));
-      saveHistory(res);
-      // URLの末尾に結果をくっつける
-      const newURL = window.location.origin + window.location.pathname + "?result=" + res.key;
-      window.history.pushState({}, '', newURL);
+      
+      try {
+        const newURL = window.location.origin + window.location.pathname + "?result=" + res.key;
+        window.history.pushState({}, '', newURL);
+      } catch(e) {
+        console.warn("プレビュー環境でのURL書き換えエラーをスキップしました。", e);
+      }
+      
       localStorage.setItem("lastResult", JSON.stringify(res));
       saveHistory(res);
       display(res);
     }
-
+    
     function display(res) {
-      document.getElementById("diagnosis").style.display = "none";
-      document.getElementById("result").style.display = "block";
-      const bArea = document.getElementById("badgeArea"); bArea.innerHTML = "";
-      res.display.forEach(t => {
-        const b= document.createElement("span"); 
-        b.className = "type-badge";
-        b.innerText = typeDetails[t].name+ " 👆";
-        b.style.textDecoration = "underline";
-        b.onclick = () => openModal(t);
-        bArea.appendChild(b);
-      });
-      document.getElementById("summaryDesc").innerText = typeDetails[res.display[2]].desc;
+      document.getElementById("diagnosisArea").style.display = "none";
+      document.getElementById("resultArea").style.display = "block";
       
       const key = res.key;
-      // ガッツリ和漢メニューを表示（料理名＋解説＋クリックでレシピ）
-      const hearty = heartyMenus[key];
-      if (hearty) {
-        document.getElementById("heartyMenu").innerHTML = `
-          <div onclick="openRecipeModal('${key}')" style="cursor:pointer; background:#fff; padding:12px; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;">
-            <div style="font-size:1.1rem; color:#e65100; font-weight:bold; text-decoration:underline;">${hearty.name} 👆</div>
-            <div style="font-size:0.85rem; color:#666; font-weight:normal; margin-top:8px; text-decoration:none;">💡 ${hearty.desc}</div>
-            <div style="font-size:0.75rem; color:#999; margin-top:10px; text-align:right; font-weight:bold;">タップしてレシピを見る ＞</div>
+
+      const mainImg = document.getElementById("mainResultImage");
+      mainImg.innerHTML = `<img src="images/results/${key}.png" alt="診断結果" style="width:100%; max-width:300px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1);" onerror="this.style.display='none'">`;
+
+      const bArea = document.getElementById("badgeArea"); 
+      bArea.innerHTML = "";
+      res.display.forEach(t => {
+        const dInfo = typeDetails[t];
+        bArea.innerHTML += `
+          <div class="type-desc-card">
+            <div style="display:flex; align-items:flex-start; gap:12px;">
+              <img src="images/types/${t}.png" alt="${dInfo.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px; flex-shrink: 0;" onerror="this.style.display='none'">
+              <div>
+                <h4>${dInfo.name}</h4>
+                <p class="short">${dInfo.desc}</p>
+                <p class="long">${dInfo.long}</p>
+              </div>
+            </div>
           </div>
         `;
-      }
-      // 💡今回追加：おすすめ食材（効能を青字で）の表示処理
-      const foodArea = document.getElementById("convenienceFoods");
-      foodArea.innerHTML = ""; // 一旦リセット
-      const foodsList = pdfFoodsData[key]; // 結果の体質に合ったリストを取り出す
+      });
       
+      const foodArea = document.getElementById("convenienceFoods");
+      foodArea.innerHTML = ""; 
+      const foodsList = pdfFoodsData[key]; 
       if (foodsList) {
         let html = "";
         foodsList.forEach(item => {
-          html += `<div style="margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed #eac176;">
-            <div style="font-weight: bold; color: var(--main); font-size: 0.95rem;">${item.cat}</div>
-            <div style="font-size: 0.9rem; color: #444; margin: 4px 0;">${item.foods}</div>
-            <div style="font-size: 0.8rem; color: #1e88e5; font-weight: bold;">✨ ${item.effect}</div>
+          html += `<div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed #eac176;">
+            <div style="font-weight: bold; color: var(--main); font-size: 1rem; margin-bottom: 5px;">${item.cat}</div>
+            <div style="font-size: 0.9rem; color: #444; margin: 4px 0; line-height: 1.4;">${item.foods}</div>
+            <div style="font-size: 0.85rem; color: #1e88e5; font-weight: bold; margin-top: 5px;">✨ ${item.effect}</div>
           </div>`;
         });
         foodArea.innerHTML = html;
       }
-      // 薬膳表示
+
+      let heartyList = heartyMenus[key];
+      const menuContainer = document.getElementById("heartyMenu");
+      menuContainer.innerHTML = ""; 
+      if (heartyList && !Array.isArray(heartyList)) {
+        heartyList = [heartyList];
+      }
+      if (heartyList && heartyList.length > 0) {
+        let menuHTML = "";
+        heartyList.forEach((menu, index) => {
+          menuHTML += `
+            <div onclick="openRecipeModal('${key}', ${index})" style="cursor:pointer; background:#fffafa; padding:15px; border-radius:10px; margin-bottom:12px; border:1px solid #f5a3a3; box-shadow:0 2px 5px rgba(0,0,0,0.05); transition: 0.2s;">
+              <div style="font-size:1.05rem; color:#e65100; font-weight:bold; text-decoration:underline;">${index + 1}. ${menu.name} 👆</div>
+              <div style="font-size:0.85rem; color:#666; font-weight:normal; margin-top:8px; line-height:1.4;">💡 ${menu.desc}</div>
+            </div>
+          `;
+        });
+        menuContainer.innerHTML = menuHTML;
+      }
+
+      // 💡 詳細画面遷移付き：薬膳表示
       const yArea = document.getElementById("yakuzennImages"); yArea.innerHTML = "";
       (yakuzennNames[key] || []).forEach((n, i) => {
-        yArea.innerHTML += `<figure><img src="images/yakuzenn/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="recipes/${getRecipeFilename(n)}">${n}</a></figcaption></figure>`;
+        const imgSrc = `images/yakuzenn/${key}_${i+1}.jpg`;
+        yArea.innerHTML += `<figure onclick="showDetail('薬膳', '${n}', '${imgSrc}')"><img src="${imgSrc}" onerror="this.style.display='none'"><figcaption>${n}</figcaption></figure>`;
       });
-      // ツボ表示
+
+      // 💡 詳細画面遷移付き：ツボ表示
       const tArea = document.getElementById("tsuboImages"); tArea.innerHTML = "";
       (tsuboNames[key] || []).forEach((n, i) => {
-        const fn = { "関元": "kangen.html", "気海": "kikai.html", "足三里":"ashisanri.html", "膻中": "danchu.html", "太衝": "taisho.html", "合谷": "goukoku.html", "百会": "hyakue.html", "血海": "kekkai.html", "三陰交":"saninkou.html", "肩井": "kensei.html", "水分": "suibun.html", "豊隆": "houryuu.html", "大椎": "daitui.html", "曲池": "kyokuchi.html" }[n] || "";
-        tArea.innerHTML += `<figure><img src="images/tsubo/${key}_${i+1}.jpg" onerror="this.style.display='none'"><figcaption><a href="tsubo/${fn}">${n}</a></figcaption></figure>`;
+        const imgSrc = `images/tsubo/${key}_${i+1}.jpg`;
+        tArea.innerHTML += `<figure onclick="showDetail('ツボ', '${n}', '${imgSrc}')"><img src="${imgSrc}" onerror="this.style.display='none'"><figcaption>${n}</figcaption></figure>`;
       });
-      // ヨガ表示
+
+      // 💡 詳細画面遷移付き：ヨガ表示
       const pArea = document.getElementById("yogaPlaceholder"); pArea.innerHTML = "";
       (yogaNames[key] || []).forEach(id => {
-        pArea.innerHTML += `<figure><img src="images/yoga/${id}.jpg" onerror="this.style.display='none'"><figcaption><a href="yoga/${id}.html">${yogaDisplayNames[id] || id}</a></figcaption></figure>`;
+        const title = yogaDisplayNames[id] || id;
+        const imgSrc = `images/yoga/${id}.jpg`;
+        pArea.innerHTML += `<figure onclick="showDetail('ヨガ', '${title}', '${imgSrc}')"><img src="${imgSrc}" onerror="this.style.display='none'"><figcaption>${title}</figcaption></figure>`;
       });
     }
 
-    function openModal(t) {
-      document.getElementById("mTitle").innerText = typeDetails[t].name + "の解説";
-      document.getElementById("mContent").innerText = typeDetails[t].long;
-      document.getElementById("overlay").style.display = "block"; document.getElementById("modal").style.display = "block";
+    // 💡 詳細ページ表示用関数
+    function showDetail(category, title, imgSrc) {
+      document.getElementById("resultArea").style.display = "none";
+      document.getElementById("detailArea").style.display = "block";
+      document.getElementById("detailCategory").innerText = category;
+      document.getElementById("detailTitle").innerText = title;
+      const imgEl = document.getElementById("detailImage");
+      imgEl.src = imgSrc;
+      imgEl.style.display = "inline-block";
+      window.scrollTo(0, 0); // 画面上部へ移動
     }
-    function closeModal() { document.getElementById("overlay").style.display = "none"; document.getElementById("modal").style.display = "none"; }
-    // 💡 今回追加：レシピのポップアップを開く機能
-    function openRecipeModal(key) {
-      const menu = heartyMenus[key];
+
+    // 💡 詳細ページから結果へ戻る関数
+    function backToResult() {
+      document.getElementById("detailArea").style.display = "none";
+      document.getElementById("resultArea").style.display = "block";
+      window.scrollTo(0, 0); // 画面上部へ移動
+    }
+
+    function openRecipeModal(key, index) {
+      let menuList = heartyMenus[key];
+      if (menuList && !Array.isArray(menuList)) menuList = [menuList];
+      const menu = menuList[index];
       if (!menu) return;
-      
-      document.getElementById("mTitle").innerText = "🍳 " + menu.name;
-      document.getElementById("mContent").innerHTML = `
-        <div style="font-size: 0.85rem; color: #666; margin-bottom: 15px;">${menu.desc}</div>
-        <div style="font-weight: bold; color: #d2691e; border-bottom: 1px dashed #ffd8b2; margin-bottom: 5px; padding-bottom: 3px;">🛒 材料（1〜2人分）</div>
-        <p style="font-size: 0.85rem; margin-top: 0; margin-bottom: 15px; line-height: 1.5;">${menu.ingredients}</p>
-        <div style="font-weight: bold; color: #d2691e; border-bottom: 1px dashed #ffd8b2; margin-bottom: 5px; padding-bottom: 3px;">👨‍🍳 作り方</div>
-        <p style="font-size: 0.85rem; margin-top: 0; line-height: 1.5;">${menu.steps}</p>
-      `;
-      document.getElementById("overlay").style.display = "block";
-      document.getElementById("modal").style.display = "block";
+
+      document.getElementById("m_name").innerText = menu.name;
+      document.getElementById("m_desc").innerText = menu.desc;
+      document.getElementById("m_ingredients").innerHTML = menu.ingredients || "（材料データ準備中）";
+      document.getElementById("m_steps").innerHTML = menu.steps || "（作り方データ準備中）";
+
+      const imgEl = document.getElementById("m_image");
+      imgEl.src = `images/recipes/${key}_${index + 1}.jpg`;
+      imgEl.style.display = "inline-block";
+
+      document.getElementById("recipeModal").style.display = "flex";
     }
+
+    function closeRecipeModal() {
+      document.getElementById("recipeModal").style.display = "none";
+    }
+
     function startDiagnosis() { 
       localStorage.removeItem("lastResult"); 
       window.location.href = window.location.pathname;
     }
+
     function saveHistory(res) {
       let h = JSON.parse(localStorage.getItem("history")) || [];
-      h.unshift({ time: new Date().toLocaleString(), label: res.display.map(t=>typeDetails[t].name).join("/"), data: res });
+      const newLabel = res.display.map(t=>typeDetails[t].name.split(' ')[0]).join(" / ");
+      
+      // 同じ結果が続いた場合は時間だけ更新してダブりを防ぐ
+      if(h.length > 0 && h[0].label === newLabel) {
+        h[0].time = new Date().toLocaleString();
+      } else {
+        h.unshift({ time: new Date().toLocaleString(), label: newLabel, data: res });
+      }
       localStorage.setItem("history", JSON.stringify(h.slice(0, 10)));
     }
+
     function toggleHistory() {
       const area = document.getElementById("historyList");
       if(area.style.display === "block") { area.style.display = "none"; return; }
       const data = JSON.parse(localStorage.getItem("history")) || [];
-      area.innerHTML = data.map(i => `<div style="border-bottom:1px solid #eee; padding:5px;">${i.time}<br><b>${i.label}</b></div>`).join("");
+      if(data.length === 0) {
+        area.innerHTML = "<p style='text-align:center; color:#888;'>履歴はありません</p>";
+      } else {
+        area.innerHTML = data.map(i => `<div style="border-bottom:1px dashed #ddd; padding:8px 0; margin-bottom:5px;">
+          <span style="color:#888; font-size:0.75rem;">${i.time}</span><br>
+          <strong style="color:var(--main); font-size:0.9rem;">${i.label}</strong>
+        </div>`).join("");
+      }
       area.style.display = "block";
     }
+
     function copyURL() {
-      const url = window.location.href;
       navigator.clipboard.writeText(window.location.href).then(() => {
         alert("診断結果のURLをコピーしました！LINEなどで送ってみてください。");
       }).catch(err => {
-        console.error("コピー失敗: ", err);
+        const tempInput = document.createElement("input");
+        tempInput.value = window.location.href;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        alert("診断結果のURLをコピーしました！LINEなどで送ってみてください。");
       });
     }
 
@@ -851,7 +972,7 @@
         if(last) { 
           display(JSON.parse(last)); 
         } else { 
-        showQuestion(); 
+          showQuestion(); 
         }
       }
     };
